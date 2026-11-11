@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Шкатулка 2027</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+:root{--night:#0f1226;--plum:#2a1a3d;--cream:#f3e3c3;--rose:#e8a0b4;--ember:#ff9f68;--ink:#1b1530;--wax:#b3243e}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;touch-action:manipulation}
+button{touch-action:manipulation;-webkit-user-select:none;user-select:none}
+body{background:linear-gradient(180deg,var(--night) 0%,var(--plum) 55%,#4a2340 100%);color:var(--cream);font:16px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:env(safe-area-inset-bottom,0)}
+body.lock{overflow:hidden;height:100vh}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:1}
+section{position:relative;z-index:2;max-width:520px;margin:0 auto;padding:60px 24px}
+h1,h2{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:600;line-height:1.05}
+h1{font-size:clamp(46px,14vw,72px)}
+h2{font-size:36px;margin-bottom:8px}
+.sub{opacity:.75;margin-bottom:28px}
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.count{display:flex;gap:10px;margin-top:36px}
+.count div{flex:1;text-align:center;padding:14px 0;border:1px solid rgba(243,227,195,.25);border-radius:14px}
+.count b{display:block;font:600 30px "Cormorant Garamond",serif}
+.count span{font-size:12px;opacity:.7}
+.hint{margin-top:28px;opacity:.6;font-size:14px}
+
+#gate{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at 50% 30%,#2a1a3d,#0a0816 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px;transition:opacity .9s .5s}
+#gate.open{opacity:0;pointer-events:none}
+#gate p{font:italic 600 30px "Cormorant Garamond",serif;text-align:center;padding:0 30px}
+.env0{width:min(76vw,320px);aspect-ratio:1.5;background:var(--cream);border-radius:8px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:transform .8s}
+.env0::before{content:"";position:absolute;inset:0;border-radius:8px;background:linear-gradient(to bottom right,transparent 49.7%,rgba(27,21,48,.13) 50%) bottom left/50% 50% no-repeat,linear-gradient(to bottom left,transparent 49.7%,rgba(27,21,48,.13) 50%) bottom right/50% 50% no-repeat}
+.flap{position:absolute;left:0;right:0;top:0;height:56%;background:#e6d3ac;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .7s}
+#seal{position:absolute;left:50%;top:56%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#d6455f,var(--wax) 60%,#7c1226);color:#f6c6cf;font:600 26px serif;box-shadow:0 4px 14px rgba(0,0,0,.5);cursor:pointer;animation:pulse 2s infinite;z-index:2}
+@keyframes pulse{50%{box-shadow:0 0 0 12px rgba(179,36,62,.25),0 4px 14px rgba(0,0,0,.5)}}
+#gate.open .flap{transform:rotateX(180deg)}
+#gate.open #seal{transform:scale(1.8) rotate(25deg);opacity:0;transition:.4s;animation:none}
+#gate.open .env0{transform:translateY(60px) scale(.9)}
+#gate small{opacity:.55;font-size:14px}
+
+.env-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.env{aspect-ratio:1.25;background:var(--cream);color:var(--ink);border:0;border-radius:6px;padding:12px;font:600 19px/1.15 "Cormorant Garamond",serif;font-style:italic;position:relative;cursor:pointer;text-align:left;display:flex;align-items:flex-end;overflow:hidden;transition:transform .2s}
+.env:active{transform:scale(.96)}
+.env::before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent 49.5%,rgba(27,21,48,.12) 50%) top/100% 55% no-repeat,linear-gradient(to bottom left,transparent 49.5%,rgba(27,21,48,.12) 50%) top/100% 55% no-repeat}
+.env i{position:absolute;top:30%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--wax);box-shadow:0 0 0 3px rgba(179,36,62,.3)}
+.env.read{opacity:.5}.env.read i{background:#8a8a8a;box-shadow:none}
+
+.tl{position:relative;padding-left:26px;border-left:2px solid rgba(243,227,195,.25)}
+.tl div{position:relative;margin-bottom:30px}
+.tl div::before{content:"";position:absolute;left:-33px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--ember);box-shadow:0 0 0 4px rgba(255,159,104,.2)}
+.tl em{font:700 20px Caveat,cursive;color:var(--ember);font-style:normal}
+.tl b{display:block;font:italic 600 26px/1.15 "Cormorant Garamond",serif}
+.tl p{opacity:.8;margin-top:4px}
+
+.card{background:rgba(243,227,195,.07);border:1px solid rgba(243,227,195,.2);border-radius:20px;padding:24px}
+#qq{font:italic 600 26px/1.2 "Cormorant Garamond",serif;margin-bottom:16px}
+.opt{display:block;width:100%;text-align:left;margin-top:10px;padding:14px 16px;border-radius:12px;border:1px solid rgba(243,227,195,.3);background:transparent;color:var(--cream);font:16px -apple-system,sans-serif;cursor:pointer}
+.opt.ok{background:#2f6b4f;border-color:#2f6b4f}.opt.no{background:#7c2a3c;border-color:#7c2a3c}
+#qp{opacity:.6;font-size:14px;margin-bottom:8px}
+
+.btn{background:var(--ember);color:var(--ink);border:0;border-radius:999px;padding:15px 28px;font:600 16px -apple-system,sans-serif;cursor:pointer}
+.btn:active{transform:scale(.97)}.btn:disabled{opacity:.45;cursor:default}
+.oracle{margin-top:24px;min-height:96px;font:italic 500 27px/1.25 "Cormorant Garamond",serif;color:var(--rose)}
+ul{list-style:none;padding:0}
+li{padding:16px 0;border-bottom:1px solid rgba(243,227,195,.18);font:italic 500 24px/1.3 "Cormorant Garamond",serif}
+.final{text-align:center;padding-bottom:120px}
+#sheet{position:fixed;inset:0;z-index:30;background:rgba(10,8,22,.75);display:none;align-items:flex-end}
+#sheet.on{display:flex}
+#sheet article{width:100%;max-width:520px;margin:0 auto;background:var(--cream);color:var(--ink);border-radius:22px 22px 0 0;padding:30px 26px calc(30px + env(safe-area-inset-bottom,0));animation:up .35s ease-out;max-height:85vh;overflow:auto}
+#sheet h3{font:italic 600 30px "Cormorant Garamond",serif;margin-bottom:12px}
+#sheet p{font:500 24px/1.3 Caveat,cursive;white-space:pre-line;min-height:80px}
+#sheet .btn{margin-top:22px;background:var(--ink);color:var(--cream)}
+.me{display:none;width:min(62vw,250px);background:var(--cream);color:var(--ink);padding:10px 10px 8px;border-radius:4px;box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 60px rgba(232,160,180,.25);transform:rotate(-3deg);margin-bottom:30px}
+.me.on{display:block}
+.me img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:2px}
+.me.ph img{display:none}
+.me.ph::before{content:"Тут будет её новогоднее фото";display:flex;align-items:center;justify-content:center;text-align:center;aspect-ratio:4/5;padding:20px;border-radius:2px;background:linear-gradient(135deg,#d9c3a0,#e8a0b4);font:italic 600 24px "Cormorant Garamond",serif}
+.me figcaption{font:700 24px/1.3 Caveat,cursive;text-align:center;padding-top:6px}
+.heart{display:block;margin:34px 0 0;background:none;border:0;color:#e8466a;font:96px/1 serif;cursor:pointer;text-shadow:0 0 28px rgba(232,70,106,.6);animation:beat 1.6s infinite}
+.heart:active{transform:scale(.88);animation:none}
+.hm{margin-top:14px;min-height:56px;font:italic 500 26px/1.25 "Cormorant Garamond",serif;color:var(--rose)}
+@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.14)}28%{transform:scale(1)}42%{transform:scale(1.1)}70%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.heart{animation:none}}
+#map{width:100%;display:block;margin-bottom:6px}
+.dist{text-align:center;margin:6px 0 18px}
+.dist b{display:block;font:600 56px/1 "Cormorant Garamond",serif;color:var(--ember)}
+.dist span{opacity:.75}
+.clocks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.clocks div{border:1px solid rgba(243,227,195,.25);border-radius:14px;padding:14px;text-align:center}
+.clocks small{display:block;opacity:.7}
+.clocks b{font:600 34px "Cormorant Garamond",serif}
+#next{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:488px;margin:0 auto;z-index:31;background:var(--cream);color:var(--ink);border-radius:20px;padding:22px 24px;border:2px dashed rgba(27,21,48,.25);box-shadow:0 20px 60px rgba(0,0,0,.6);transform:translateY(160%);transition:transform .6s cubic-bezier(.2,.9,.3,1)}
+#next.on{transform:none}
+#next small{display:block;opacity:.65}
+#next h3{font:italic 600 30px/1.1 "Cormorant Garamond",serif;margin:4px 0}
+#next .d{font:700 28px Caveat,cursive;color:var(--wax)}
+#next .btn{margin-top:14px;background:var(--ink);color:var(--cream);padding:10px 22px}
+[hidden]{display:none!important}
+#pg-adv{padding-bottom:90px}
+.adv{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ad{aspect-ratio:1;border-radius:16px;border:1px solid rgba(243,227,195,.25);background:rgba(243,227,195,.06);color:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;opacity:.6}
+.ad:last-child{grid-column:1/-1;aspect-ratio:2.2}
+.ad b{font:600 52px/1 "Cormorant Garamond",serif}
+.ad small{font:14px -apple-system,sans-serif;opacity:.85}
+.ad.open{opacity:1;background:linear-gradient(135deg,#a02344,#5b1b3a);border-color:var(--ember);animation:pulse2 2.2s infinite}
+.ad.seen{animation:none;background:rgba(243,227,195,.1);border-color:rgba(243,227,195,.4)}
+@keyframes pulse2{50%{box-shadow:0 0 0 8px rgba(255,159,104,.18)}}
+@media (prefers-reduced-motion:reduce){.ad.open{animation:none}}
+#sh-img{aspect-ratio:4/3;border-radius:12px;overflow:hidden;margin-bottom:16px;background:linear-gradient(135deg,#d9c3a0,#e8a0b4);display:flex;align-items:center;justify-content:center;text-align:center;font:italic 600 22px "Cormorant Garamond",serif}
+#sh-img img{width:100%;height:100%;object-fit:cover}
+#pg-game{padding-bottom:90px}
+#tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;justify-content:center;gap:8px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(15,18,38,.88);backdrop-filter:blur(10px);border-top:1px solid rgba(243,227,195,.15)}
+#tabs button{flex:1;max-width:200px;padding:11px;border-radius:999px;border:1px solid rgba(243,227,195,.3);background:transparent;color:var(--cream);font:600 15px -apple-system,sans-serif;cursor:pointer}
+#tabs button.on{background:var(--ember);color:var(--ink);border-color:var(--ember)}
+#tabs button{padding:11px 6px;font-size:14px;white-space:nowrap}
+#tb-main{flex:1.7}
+#tabs button.lock{opacity:.55}
+#tabs button.glow:not(.on){animation:pulse2 2s infinite;border-color:var(--ember)}
+#wgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:300px;margin:0 auto 14px}
+.wc{aspect-ratio:1;border:2px solid rgba(243,227,195,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 28px -apple-system,sans-serif;transition:background .3s,transform .15s}
+.wc.f{border-color:rgba(243,227,195,.7);transform:scale(1.04)}
+.wc.g,.wk.g{background:#2f6b4f;border-color:#2f6b4f}
+.wc.y,.wk.y{background:#a8802c;border-color:#a8802c}
+.wc.x,.wk.x{background:#3a3550;border-color:#3a3550}
+#wmsg{text-align:center;min-height:30px;margin-bottom:12px;font:italic 500 22px "Cormorant Garamond",serif;color:var(--rose)}
+#wkb{max-width:420px;margin:0 auto}
+.wr{display:flex;gap:4px;justify-content:center;margin-bottom:6px}
+.wk{flex:1;max-width:34px;height:44px;border:0;border-radius:6px;background:rgba(243,227,195,.18);color:var(--cream);font:600 15px -apple-system,sans-serif;cursor:pointer;padding:0}
+.wk.wide{flex:1.6;max-width:56px}
+#wnew{display:block;margin:16px auto 0}
+.ver{text-align:center;font-size:11px;opacity:.35;margin-top:22px}
+.gsw{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.gsw h2{margin:0}
+.gsw button{width:44px;height:44px;border-radius:50%;border:1px solid rgba(243,227,195,.35);background:transparent;color:var(--cream);font:26px/1 serif;cursor:pointer}
+.mhud{display:flex;justify-content:space-between;max-width:340px;margin:0 auto 10px;font:600 16px -apple-system,sans-serif}
+#mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;max-width:340px;margin:0 auto 12px;padding:8px;border-radius:18px;background:radial-gradient(circle at 50% 0,rgba(243,227,195,.14),rgba(243,227,195,.04));border:1px solid rgba(243,227,195,.2);box-shadow:inset 0 0 30px rgba(0,0,0,.35)}
+.cell{position:relative;aspect-ratio:1;min-width:0}.cell.hole{border-radius:15px;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 38%,rgba(7,8,18,.98) 0 28%,rgba(20,18,37,.96) 48%,rgba(55,43,72,.72) 64%,rgba(12,12,24,.25) 76%),linear-gradient(145deg,rgba(243,227,195,.13),rgba(20,16,34,.4));box-shadow:inset 0 5px 12px rgba(0,0,0,.9),inset 0 -2px 5px rgba(255,255,255,.06),0 0 0 1px rgba(211,185,235,.22)}.cell.hole::before{content:"";display:block;position:absolute;inset:12%;border:1px dashed rgba(202,177,226,.32);border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(202,177,226,.08) 0 5deg,transparent 5deg 30deg);box-shadow:0 0 10px rgba(151,108,205,.22)}.cell.hole::after{content:"✧";position:absolute;inset:0;display:grid;place-items:center;color:rgba(221,197,246,.55);font:20px/1 serif;text-shadow:0 0 9px rgba(174,129,231,.8)}
+.cell::before{content:"";position:absolute;inset:-3px;border-radius:50%;background:radial-gradient(circle,var(--g,transparent),transparent 68%);opacity:.75}
+.t0{--c1:rgba(255,160,180,.92);--c2:rgba(214,49,79,.8);--g:rgba(255,80,110,.55)}
+.t1{--c1:rgba(255,222,140,.92);--c2:rgba(232,145,43,.8);--g:rgba(255,170,60,.55)}
+.t2{--c1:rgba(165,230,255,.92);--c2:rgba(43,134,214,.8);--g:rgba(70,160,255,.55)}
+.t3{--c1:rgba(190,248,180,.92);--c2:rgba(46,157,88,.8);--g:rgba(70,220,120,.55)}
+.t4{--c1:rgba(230,190,255,.92);--c2:rgba(138,63,209,.8);--g:rgba(180,110,255,.55)}
+.t9{--g:rgba(255,255,255,.6)}
+.gm{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;cursor:pointer;will-change:transform;background:conic-gradient(from 30deg at 50% 55%,rgba(255,255,255,.5),rgba(255,255,255,.02) 22%,rgba(0,0,0,.28) 38%,rgba(255,255,255,.3) 55%,rgba(0,0,0,.22) 78%,rgba(255,255,255,.5)),radial-gradient(circle at 35% 28%,var(--c1),var(--c2));box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.4),inset 0 -7px 10px rgba(0,0,0,.28),inset 0 6px 8px rgba(255,255,255,.25)}
+.gm::before{content:"";position:absolute;left:16%;top:10%;width:42%;height:24%;border-radius:50%;background:linear-gradient(rgba(255,255,255,.8),rgba(255,255,255,0));transform:rotate(-28deg)}
+.t0 .gm{border-radius:50%}.t1 .gm{border-radius:24%}
+.t2 .gm{clip-path:polygon(50% 2%,98% 50%,50% 98%,2% 50%)}
+.t3 .gm{clip-path:polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0 50%)}
+.t4 .gm{clip-path:polygon(50% 4%,98% 94%,2% 94%)}
+.t9 .gm{border-radius:50%;background:conic-gradient(from 30deg at 50% 55%,rgba(255,255,255,.4),rgba(255,255,255,0) 25%,rgba(0,0,0,.25) 45%,rgba(255,255,255,.3) 70%,rgba(255,255,255,.4)),conic-gradient(#ff5d5d,#ffb84d,#fff06b,#5dff8a,#5de1ff,#6b7dff,#d46bff,#ff5d5d)}
+.gm[data-s]::after{content:"";position:absolute;inset:16%;background:center/contain no-repeat}
+.gm[data-s="1"]::after{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M3%2012h18M7%207l-4%205%204%205M17%207l4%205-4%205%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-opacity%3D%27.45%27%20stroke-width%3D%274.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3Cpath%20d%3D%27M3%2012h18M7%207l-4%205%204%205M17%207l4%205-4%205%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%272.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E")}
+.gm[data-s="2"]::after{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M12%203v18M7%207l5-4%205%204M7%2017l5%204%205-4%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-opacity%3D%27.45%27%20stroke-width%3D%274.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3Cpath%20d%3D%27M12%203v18M7%207l5-4%205%204M7%2017l5%204%205-4%27%20fill%3D%27none%27%20stroke%3D%27white%27%20stroke-width%3D%272.6%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E")}
+.gm[data-s="3"]::after{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpolygon%20points%3D%2712%2C1%2014.5%2C8%2022%2C6%2017%2C12%2022%2C18%2014.5%2C16%2012%2C23%209.5%2C16%202%2C18%207%2C12%202%2C6%209.5%2C8%27%20fill%3D%27white%27%20stroke%3D%27black%27%20stroke-opacity%3D%27.45%27%20stroke-width%3D%271.6%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E")}
+.gm[data-s="5"]::after{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpolygon%20points%3D%2712%2C2%2014.9%2C8.6%2022%2C9.3%2016.6%2C14%2018.2%2C21%2012%2C17.3%205.8%2C21%207.4%2C14%202%2C9.3%209.1%2C8.6%27%20fill%3D%27%23ffe27a%27%20stroke%3D%27%238a5a00%27%20stroke-width%3D%271.4%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E")}
+.gm[data-s]{animation:glow 1.8s infinite}
+.t9 .gm{animation:spin 5s linear infinite}
+@keyframes glow{50%{transform:scale(1.08)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hp{font-style:normal;color:#ff5d73;margin:0 1px}.hp.off{color:rgba(243,227,195,.25)}
+.t8{--g:rgba(255,60,60,.9)}
+.t8 .gm{border-radius:50%;background:radial-gradient(circle at 35% 30%,#6a6a7c,#17171f 72%);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.18),inset 0 -7px 10px rgba(0,0,0,.5)}
+.t8 .gm::after{content:"";position:absolute;inset:12%;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2711%27%20r%3D%277.5%27%20fill%3D%27white%27/%3E%3Crect%20x%3D%278.5%27%20y%3D%2715.5%27%20width%3D%277%27%20height%3D%275%27%20rx%3D%271.2%27%20fill%3D%27white%27/%3E%3Ccircle%20cx%3D%279%27%20cy%3D%2711%27%20r%3D%272%27%20fill%3D%27black%27/%3E%3Ccircle%20cx%3D%2715%27%20cy%3D%2711%27%20r%3D%272%27%20fill%3D%27black%27/%3E%3Cpath%20d%3D%27M12%2013.5l-1%202h2z%27%20fill%3D%27black%27/%3E%3Cpath%20d%3D%27M10.5%2018.5v2M12%2018.5v2M13.5%2018.5v2%27%20stroke%3D%27black%27%20stroke-width%3D%27.9%27/%3E%3C/svg%3E")}
+.t8::before{animation:hzp 1s ease-in-out infinite}
+@keyframes hzp{50%{opacity:.15}}
+.multimates{max-width:340px;margin:8px auto 2px;display:flex;justify-content:center;gap:22px;align-items:center}.ultimate{--charge:0%;width:62px;height:62px;padding:3px;border:0;border-radius:50%;background:conic-gradient(from -90deg,#9deaff var(--charge),rgba(243,227,195,.15) var(--charge));display:grid;place-items:center;position:relative;cursor:pointer;color:var(--cream);transition:filter .2s,transform .2s}.ultimate::before{content:"";position:absolute;inset:4px;border-radius:50%;background:#211c31;box-shadow:inset 0 0 10px #000,0 0 10px rgba(157,234,255,.14)}.ult-ring{position:relative;z-index:1;width:100%;height:100%;display:grid;place-items:center}.ult-ring b{font:26px/1 serif;text-shadow:0 0 12px rgba(157,234,255,.6)}.ultimate small{position:absolute;top:100%;margin-top:3px;font:11px -apple-system,sans-serif;white-space:nowrap;color:var(--cream);opacity:.8}.ultimate:disabled{opacity:.48;filter:grayscale(.7);cursor:default}.ultimate:not(:disabled){box-shadow:0 0 14px rgba(157,234,255,.22)}.ultimate:not(:disabled):active{transform:scale(.94)}#mgrid.hit{animation:shk .4s;border-color:#ff5a5a}
+.cell.sel .gm{animation:selp .6s infinite}
+.cell.ice::before{inset:0;border-radius:50%;clip-path:inherit;background:radial-gradient(circle at 50% 45%,rgba(190,240,255,.5),rgba(76,174,225,.22) 58%,transparent 76%);opacity:1;pointer-events:none}
+/* Ледяная глазурь лежит строго внутри контура каждого камня */
+.cell.ice{isolation:isolate}
+.cell.ice::before{content:none}
+.cell.ice::after{content:"";position:absolute;inset:1%;pointer-events:none;z-index:2;border:1px solid rgba(239,252,255,.82);background:linear-gradient(145deg,rgba(255,255,255,.48),rgba(167,230,255,.18) 38%,rgba(65,151,205,.28) 72%,rgba(235,251,255,.5));box-shadow:inset 0 0 5px rgba(255,255,255,.72),inset 0 -4px 7px rgba(42,115,171,.32);opacity:.88}
+.cell.ice.t0::after,.cell.ice.t8::after,.cell.ice.t9::after{border-radius:50%;clip-path:circle(49% at 50% 50%)}
+.cell.ice.t1::after{border-radius:24%;clip-path:inset(1% round 24%)}
+.cell.ice.t2::after{clip-path:polygon(50% 2%,98% 50%,50% 98%,2% 50%)}
+.cell.ice.t3::after{clip-path:polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0 50%)}
+.cell.ice.t4::after{clip-path:polygon(50% 4%,98% 94%,2% 94%)}
+.cell.ice .gm{filter:saturate(.55) brightness(.86)}
+.cell.ice .gm::after{content:"❄";position:absolute;inset:0;display:grid;place-items:center;color:#f4fdff;font:700 18px serif;text-shadow:0 1px 2px #14527c,0 0 5px #fff;z-index:3}
+@keyframes selp{50%{transform:scale(1.18)}}
+.cell.fall{animation:fall .36s cubic-bezier(.3,1.25,.5,1) both}
+@keyframes fall{from{transform:translateY(calc(var(--dy)*-108%));opacity:.3}to{transform:translateY(0);opacity:1}}
+.gm.swp{animation:swp .18s ease-out both}
+@keyframes swp{from{transform:translate(calc(var(--dx)*108%),calc(var(--dy)*108%))}to{transform:none}}
+.gm.born{animation:born .4s ease-out both}
+@keyframes born{from{transform:scale(0) rotate(-120deg)}to{transform:none}}
+.cell.pop .gm{animation:pop .26s ease-in both}
+@keyframes pop{40%{transform:scale(1.25)}to{transform:scale(0);opacity:0}}
+.cell.pop::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.85);animation:ring .3s ease-out both}
+@keyframes ring{from{transform:scale(.4);opacity:1}to{transform:scale(1.9);opacity:0}}
+.mgoal{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 10px;max-width:340px;margin:0 auto 12px;font:600 15px -apple-system,sans-serif}
+.mgoal b{font:italic 600 24px "Cormorant Garamond",serif;margin-right:4px}
+.chip{display:flex;align-items:center;gap:6px;padding:4px 11px 4px 5px;border-radius:999px;background:rgba(243,227,195,.08);border:1px solid rgba(243,227,195,.2)}
+.chip .cell{width:26px;height:26px;aspect-ratio:auto}
+.chip.done{opacity:.6;border-color:#5fd68c}
+.mbarw{max-width:340px;margin:6px auto 30px;padding:0 14px}
+.mbar{position:relative;height:14px;border-radius:999px;background:rgba(243,227,195,.12);border:1px solid rgba(243,227,195,.25)}
+.mfill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#ff9f68,#ffd36b);box-shadow:0 0 12px rgba(255,211,107,.6);transition:width .5s}
+.mk{position:absolute;top:50%;width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:#2a1a3d;border:2px solid rgba(243,227,195,.4);transition:.3s}
+.mk i{position:absolute;top:31px;font:normal 11px -apple-system,sans-serif;opacity:.7;white-space:nowrap}
+.mk.on{background:var(--ember);border-color:#ffd36b;box-shadow:0 0 14px rgba(255,211,107,.85);transform:scale(1.18)}
+#mmsg{text-align:center;min-height:30px;margin-bottom:8px;font:italic 500 22px "Cormorant Garamond",serif;color:var(--rose)}
+#mnew{display:block;margin:10px auto 0}
+.mskip{display:block;margin:10px auto 0;padding:9px 18px;border:1px solid rgba(243,227,195,.28);border-radius:999px;background:rgba(243,227,195,.07);color:var(--cream);font:500 13px -apple-system,sans-serif;letter-spacing:.02em;opacity:.85}.mskip:active{transform:scale(.97);background:rgba(243,227,195,.14)}
+@media (prefers-reduced-motion:reduce){.gm[data-s],.t9 .gm,.cell.sel .gm,.t8::before{animation:none}}
+.sh{animation:shk .35s}
+@keyframes shk{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.meet{text-align:center;padding:30px 20px}
+.meet b{display:block;font:600 88px/1 "Cormorant Garamond",serif;color:var(--ember)}
+.meet span{font:italic 600 26px "Cormorant Garamond",serif}
+.meet p{margin-top:14px;opacity:.8}
+.gal{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:12px 24px 26px;margin:0 -24px}
+.pol{flex:0 0 72%;scroll-snap-align:center;background:var(--cream);color:var(--ink);padding:12px 12px 16px;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.pol:nth-child(odd){transform:rotate(-2deg)}.pol:nth-child(even){transform:rotate(2deg)}
+.pol .ph{aspect-ratio:1;border-radius:2px;background:linear-gradient(135deg,#d9c3a0,#e8a0b4);display:flex;align-items:center;justify-content:center;font:italic 600 20px "Cormorant Garamond",serif;overflow:hidden}
+.pol img{width:100%;height:100%;object-fit:cover}
+.pol p{font:700 22px Caveat,cursive;text-align:center;margin-top:10px}
+#tree{width:100%;max-width:340px;display:block;margin:0 auto;touch-action:manipulation}
+#tree .st{filter:drop-shadow(0 0 8px #ffd36b);animation:stw 2.4s infinite}
+@keyframes stw{50%{opacity:.7}}
+@media (prefers-reduced-motion:reduce){#tree .st{animation:none}}
+.lt{animation:tw 2s infinite}.lt:nth-child(2n){animation-delay:.7s}.lt:nth-child(3n){animation-delay:1.3s}
+@keyframes tw{50%{opacity:.25}}
+#wish{text-align:center;min-height:60px;margin-top:12px;font:italic 500 24px "Cormorant Garamond",serif;color:var(--rose)}
+@media (prefers-reduced-motion:reduce){.lt{animation:none}}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+@media (prefers-reduced-motion:reduce){#sheet article{animation:none}#seal{animation:none}}
+</style>
+</head>
+<body class="lock">
+<canvas id="fx"></canvas>
+
+<div id="gate">
+  <p id="gtitle"></p>
+  <div class="env0"><div class="flap"></div><button id="seal" aria-label="Открыть">♥</button></div>
+  <small>Сломай печать</small>
+</div>
+
+<main id="pg-main" hidden>
+<section class="hero">
+  <figure class="me" id="me"><img id="meimg" alt=""><figcaption id="mecap"></figcaption></figure>
+  <p class="sub" id="lead" style="margin-top:18px"></p>
+  <button class="heart" id="heart" aria-label="Сердце">♥</button>
+  <p class="hm" id="hm">Нажми на сердце. Я почувствую.</p>
+  <p class="hint">Листай вниз. Здесь всё только для тебя.</p>
+</section>
+
+<section>
+  <h2>Наша история</h2>
+  <p class="sub">Моменты, которые я хочу сохранить.</p>
+  <div class="tl" id="tl"></div>
+</section>
+
+<section>
+  <h2>Между нами</h2>
+  <p class="sub">Расстояние, которое мы однажды обнулим.</p>
+  <svg id="map" viewBox="0 0 320 170" aria-label="Карта между нами">
+    <path d="M50,115 Q160,0 270,85" fill="none" stroke="rgba(243,227,195,.45)" stroke-width="1.5" stroke-dasharray="4 6"/>
+    <circle cx="50" cy="115" r="6" fill="#ff9f68"/><circle cx="270" cy="85" r="6" fill="#e8a0b4"/>
+    <text id="cA" x="50" y="140" text-anchor="middle" fill="#f3e3c3" font-size="14"></text>
+    <text id="cB" x="270" y="110" text-anchor="middle" fill="#f3e3c3" font-size="14"></text>
+    <text font-size="20" fill="#e8466a" text-anchor="middle" dy=".35em">♥<animateMotion dur="7s" repeatCount="indefinite" path="M50,115 Q160,0 270,85"/></text>
+  </svg>
+  <div class="dist"><b id="km"></b><span id="tdiff"></span></div>
+  <div class="clocks"><div><small id="lA"></small><b id="tA"></b></div><div><small id="lB"></small><b id="tB"></b></div></div>
+</section>
+
+<section>
+  <h2>Наши фото</h2>
+  <p class="sub">Листай вбок.</p>
+  <div class="gal" id="gal"></div>
+</section>
+
+<section>
+  <h2>Как хорошо ты меня знаешь</h2>
+  <p class="sub">Небольшой экзамен. Без пересдач.</p>
+  <div class="card"><div id="qp"></div><div id="qq"></div><div id="qa"></div></div>
+</section>
+
+<section>
+  <h2>Наша ёлка</h2>
+  <p class="sub">Нажимай на ёлку, чтобы повесить шар.</p>
+  <svg id="tree" viewBox="0 0 300 360" aria-label="Новогодняя ёлка">
+    <defs>
+      <linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f8a5f"/><stop offset="1" stop-color="#14483a"/></linearGradient>
+      <radialGradient id="shine" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></radialGradient>
+    </defs>
+    <ellipse cx="150" cy="332" rx="118" ry="14" fill="#e8eefc" opacity=".9"/>
+    <rect x="136" y="290" width="28" height="30" rx="3" fill="#6b4226"/>
+    <path d="M150,138 L28,290 Q60,304 90,290 Q120,304 150,290 Q180,304 210,290 Q240,304 272,290 Z" fill="url(#gr)"/>
+    <path d="M150,88 L48,220 Q75,232 100,220 Q125,232 150,220 Q175,232 200,220 Q225,232 252,220 Z" fill="url(#gr)"/>
+    <path d="M150,40 L68,162 Q90,172 110,162 Q130,172 150,162 Q170,172 190,162 Q210,172 232,162 Z" fill="url(#gr)"/>
+    <path d="M150,40 L232,162 L150,162 Z M150,88 L252,220 L150,220 Z M150,138 L272,290 L150,290 Z" fill="#000" opacity=".12"/>
+    <g fill="none" stroke="#f3f7ff" stroke-width="3" stroke-linecap="round" opacity=".85">
+      <path d="M68,162 Q90,172 110,162 Q130,172 150,162 Q170,172 190,162 Q210,172 232,162"/>
+      <path d="M48,220 Q75,232 100,220 Q125,232 150,220 Q175,232 200,220 Q225,232 252,220"/>
+      <path d="M28,290 Q60,304 90,290 Q120,304 150,290 Q180,304 210,290 Q240,304 272,290"/>
+    </g>
+    <g fill="none" stroke="#ffd36b" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round" opacity=".8">
+      <path d="M95,140 Q150,162 205,140"/><path d="M72,200 Q150,232 228,200"/><path d="M52,262 Q150,302 248,262"/>
+    </g>
+    <rect x="68" y="306" width="30" height="22" rx="2" fill="#b3243e"/><rect x="80" y="306" width="6" height="22" fill="#ffd36b"/>
+    <rect x="204" y="311" width="26" height="18" rx="2" fill="#3a7bd5"/><rect x="214" y="311" width="6" height="18" fill="#f3e3c3"/>
+    <polygon class="st" points="150,24 154.1,34.3 165.2,35.1 156.7,42.2 159.4,52.9 150,47 140.6,52.9 143.3,42.2 134.8,35.1 145.9,34.3" fill="#ffd36b"/>
+  </svg>
+  <div id="wish"></div>
+</section>
+
+<section>
+  <h2>Предсказание на 2027</h2>
+  <p class="sub">Нажми и узнай, что тебя ждёт.</p>
+  <button class="btn" id="oracleBtn">Вытянуть предсказание</button>
+  <div class="oracle" id="oracle"></div>
+</section>
+
+<section>
+  <h2>Мои обещания тебе</h2>
+  <p class="sub">На весь следующий год.</p>
+  <ul id="promises"></ul>
+</section>
+
+<section class="final">
+  <h2>И последнее</h2>
+  <p class="sub" id="fsub"></p>
+  <button class="btn" id="finalBtn">Открыть</button>
+</section>
+
+</main>
+
+<main id="pg-game" hidden>
+  <section>
+    <div class="gsw"><button id="g-prev" aria-label="Другая игра">‹</button><h2 id="gname">Вордли</h2><button id="g-next" aria-label="Другая игра">›</button></div>
+    <div id="gw">
+      <p class="sub">Угадай слово из пяти букв за шесть попыток. Слова открываются по одному.</p>
+      <div id="wgrid"></div>
+      <div id="wmsg"></div>
+      <div id="wkb"></div>
+      <button class="btn" id="wnew" hidden>Дальше</button>
+    </div>
+    <div id="gm" hidden>
+      <p class="sub">Собери нужные камни за отведённые ходы. Четыре в ряд дают полосу, угол даёт бомбу, пять дают радужный камень, а звезда добавляет два хода. Со 2-го уровня появляются чёрные мины с черепом: взорвёшь такую, потеряешь жизнь. Жизней три. Очки копятся, на шкале тебя ждут подарки.</p>
+      <div class="mgoal" id="mgoal"></div>
+      <div class="mhud"><span id="m-score"></span><span id="m-moves"></span><span id="m-lives"></span></div>
+      <div class="mbarw"><div class="mbar" id="mbar"><div class="mfill" id="mfill"></div></div></div>
+      <div id="mgrid"></div>
+      <div class="multimates" aria-label="Особые способности">
+        <button class="ultimate" id="multa" disabled style="--charge:0%" aria-label="Молния"><span class="ult-ring"><b>⚡</b></span><small>Молния</small></button>
+        <button class="ultimate" id="mwave" disabled style="--charge:0%" aria-label="Волна"><span class="ult-ring"><b>🌊</b></span><small>Волна</small></button>
+      </div>
+      <p class="sub" style="text-align:center;margin:2px 0 8px;font-size:11px">Для волны выбери камень в нужном ряду</p>
+      <div id="mmsg"></div>
+      <button class="btn" id="mnew" hidden>Ещё раз</button>
+      <button class="mskip" id="mskip" type="button">⏭ Пропустить уровень</button>
+    </div>
+    <p class="ver">сборка 14 · две ульты, лимит бомб и лёд</p>
+  </section>
+</main>
+
+<main id="pg-adv">
+  <section>
+    <h2 id="advt">Адвент-календарь</h2>
+    <p class="sub" id="advsub">Семь дней, семь подарков. Каждый день открывается новый.</p>
+    <div class="card meet" style="margin-bottom:18px"><b id="mdays"></b><span id="mlabel"></span><p id="mtext"></p></div>
+    <div class="adv" id="adv"></div>
+  </section>
+</main>
+
+<nav id="tabs"><button class="on" id="tb-adv">🗓 Адвент</button><button id="tb-game">🎮 Игра</button><button class="lock" id="tb-main">🔒 Поздравление</button></nav>
+
+<div id="next">
+  <small id="nx-r"></small>
+  <h3>Следующая остановка: ты</h3>
+  <div class="d" id="nx-d"></div>
+  <small id="nx-l"></small>
+  <button class="btn" id="nx-x">Закрыть</button>
+</div>
+
+<div id="sheet"><article><div id="sh-img" hidden></div><h3 id="sh-t"></h3><p id="sh-p"></p><button class="btn" id="sh-x">Закрыть</button></article></div>
+
+<script>
+/* ============ ТУТ МЕНЯЕШЬ ВСЁ ЛИЧНОЕ ============ */
+const CONFIG = {
+  name: "Солнышко",
+  lead: "Я сделал для тебя маленький мир. Он откроется по кусочку.",
+  gate: "Тебе письмо",
+  lockMsg: {t: "Откроется в полночь 🔒", p: "Поздравление откроется, когда наступит Новый год."},
+  heroPhoto: "photos/new-year.jpg",   // её новогоднее фото; положи в папку photos
+  heroCaption: "С Новым годом, красотка",
+  newYear: "2027-01-01T00:00:00",
+  lockFinal: true,   // true: финал откроется только после полуночи; false: сразу
+  moments: [
+    {d:"Лето", t:"Мы встретились", p:"Напиши сюда, что ты почувствовал в тот день, и деталь, которую помнишь только ты."},
+    {d:"Каждый день", t:"Созвоны и сообщения", p:"Напиши сюда про вашу привычку: «спокойной ночи», звонок перед сном, мемы."},
+    {d:"Сейчас", t:"Между нами километры, но не больше", p:"Напиши сюда, за что ты ей благодарен."},
+    {d:"Скоро", t:"Наша следующая встреча", p:"Я уже считаю дни."}
+  ],
+  cities: {
+    me:  {name: "Калининград", lat: 54.7104, lon: 20.4522, tz: "Europe/Kaliningrad"},
+    her: {name: "Челябинск",   lat: 55.1644, lon: 61.4368, tz: "Asia/Yekaterinburg"}
+  },
+  meet: {  // дата следующей встречи (если ещё не знаешь, поставь примерную)
+    date: "2027-02-14T00:00:00",
+    text: "Каждый день приближает нас друг к другу.",
+    done: "Мы уже вместе. Самое лучшее время."
+  },
+  photos: [  // положи картинки в папку photos рядом с index.html
+    {src:"photos/1.jpg", cap:"Наш первый день"},
+    {src:"photos/2.jpg", cap:"Скриншот нашего созвона"},
+    {src:"photos/3.jpg", cap:"Моя любимая"}
+  ],
+  advent: {
+    start: "2026-12-26T00:00:00",   // первый день; всего 7 дней подряд, последний подарок 1 января
+    gifts: [  // картинки положи в папку advent и назови 1.jpg ... 7.jpg
+      {t: "Подарок 1", p: "Здесь будет текст первого подарка.", img: "advent/1.jpg"},
+      {t: "Подарок 2", p: "Здесь будет текст второго подарка.", img: "advent/2.jpg"},
+      {t: "Подарок 3", p: "Здесь будет текст третьего подарка.", img: "advent/3.jpg"},
+      {t: "Подарок 4", p: "Здесь будет текст четвёртого подарка.", img: "advent/4.jpg"},
+      {t: "Подарок 5", p: "Здесь будет текст пятого подарка.", img: "advent/5.jpg"},
+      {t: "Подарок 6", p: "Здесь будет текст шестого подарка.", img: "advent/6.jpg"},
+      {t: "Подарок 7", p: "Здесь будет текст седьмого, последнего подарка.", img: "advent/7.jpg"}
+    ]
+  },
+  m3Goals: [   // шкала подарков по ОБЩИМ очкам (копятся между уровнями): kind = moves | rainbow | bomb | card
+    {score: 2000,  icon: "⏱", name: "+3 хода",          kind: "moves", n: 3},
+    {score: 5000,  icon: "🌈", name: "Радужный камень", kind: "rainbow"},
+    {score: 9000,  icon: "💣", name: "Бомба",           kind: "bomb"},
+    {score: 15000, icon: "🎁", name: "Сюрприз",         kind: "card", title: "Сюрприз", text: "Здесь будет текст твоего сюрприза."}
+  ],
+  // свои уровни (по желанию): {moves: 25, goals: {0: 12, 2: 10}}; камни: 0 красный круг, 1 оранжевый квадрат, 2 синий ромб, 3 зелёный шестиугольник, 4 фиолетовый треугольник. Дальше уровни считаются сами.
+  m3Levels: [],
+  wordle: {  // слова: ровно 5 букв, заглавными, без Ё
+    words: ["ТЕПЛО","ЗЕФИР","НАБОР","ПУЧОК","ГЕРОЙ","ОГОНЬ","КАРТА"],   // слово N подсказывает подарок N; открывается за день до него
+    allDone: "Все слова разгаданы!",
+    win: "Угадала! Моя умница.",
+    lose: "Не получилось. Попробуй ещё раз, слово то же!",
+    extra: [],   // сюда можно дописать слова, которые игра ошибочно не принимает: ["СЛОВО", "ДРУГОЕ"]
+  },
+  wish: "Желание загадано. Оно обязательно сбудется.",
+  heartMsgs: [  // что видит она после каждого нажатия на сердце в начале
+    "Почувствовал. Привет, моя хорошая.",
+    "Я думаю о тебе прямо сейчас.",
+    "Нас разделяют километры, но не мысли.",
+    "Ещё чуть-чуть, и я рядом.",
+    "Ты мой самый лучший человек.",
+    "С тобой любое расстояние выдержать можно."
+  ],
+  quiz: [  // ok = номер верного ответа, считая с 0
+    {q:"Какой жанр кино я выберу для вечернего просмотра?", a:["Ужасы или триллер","Комедия или ситком","Фантастика или супергероика","Драма или детектив"], ok:0},
+    {q:"Какой мой идеальный завтрак?", a:["Сладкие блинчики или сырники","Плотная яичница с беконом","Овсянка или смузи-боул","Я обычно не завтракаю"], ok:3},
+    {q:"Если мы закажем пиццу, какую я выберу?", a:["Пепперони","Четыре сыра","Гавайскую (с ананасами)","Мясное ассорти"], ok:0},
+    {q:"Моё отношение к оливкам в пицце:", a:["Обожаю, добавляю везде","Нейтральное, могу съесть","Терпеть не могу, выковыриваю","Зависит от настроения"], ok:2},
+    {q:"Какой мой любимый напиток?", a:["Кофе","Чай","Кола","Энергетик"], ok:2}
+  ],
+  quizResults: {
+    low: "Это провал, но я тебя люблю. Придётся больше со мной разговаривать.",
+    mid: "Неплохо! Но на отлично ещё есть куда расти.",
+    high: "Идеально. Ты знаешь меня лучше, чем я сам."
+  },
+  oracles: [
+    "Всё, о чём ты мечтала, однажды сбудется.",
+    "Тебя ждёт поездка, которую мы запомним надолго.",
+    "Скоро ты поймёшь, что все твои старания прошли не зря.",
+    "Тебя ждёт вечер, где будут плед, попкорн и очень страшная история на двоих.",
+    "Скоро тебе придёт сообщение, от которого ты будешь улыбаться весь день.",
+    "Ты будешь смеяться так, что заболит живот. Минимум трижды.",
+    "Расстояние когда-нибудь закончится, а мы нет."
+  ],
+  eggTitle: "Секрет найден 👻",
+  egg: "Ого, кто-то слишком любопытный! Так можно и призрака вызвать 👻 Но не бойся: в моей истории ужасов ты главная героиня, а злодеев тут нет.",
+  promises: [
+    "Любить тебя больше всех на свете.",
+    "Слушать, а не пропускать мимо ушей.",
+    "Устраивать маленькие сюрпризы без повода.",
+    "Быть всегда рядом.",
+    "Обещаю не давать тебе грустить и напоминать, какая ты крутая."
+  ],
+  finalTitle: "Я тебя люблю",
+  finalText: "Спасибо, что ты есть.\nС Новым годом, моя хорошая.\nПусть 2027 будет нашим."
+};
+/* ================================================ */
+
+const tg = window.Telegram && Telegram.WebApp;
+if (tg) { try { tg.ready(); tg.expand(); tg.setHeaderColor("#0f1226"); tg.setBackgroundColor("#0f1226"); } catch(e){} }
+const buzz = (t="light") => { try { tg.HapticFeedback.impactOccurred(t); } catch(e){} };
+const note = t => { try { tg.HapticFeedback.notificationOccurred(t); } catch(e){} };
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; return e; };
+
+$("lead").textContent = CONFIG.lead;
+$("gtitle").textContent = CONFIG.gate;
+$("mecap").textContent = CONFIG.heroCaption;
+$("meimg").onload = () => $("me").classList.add("on");
+$("meimg").onerror = () => $("me").classList.add("on", "ph");
+$("meimg").src = CONFIG.heroPhoto;
+CONFIG.promises.forEach(p => $("promises").append(el("li", "", p)));
+
+// Gate
+$("seal").onclick = () => {
+  buzz("heavy"); $("gate").classList.add("open"); document.body.classList.remove("lock");
+  setTimeout(() => { $("gate").remove(); burst(60, innerWidth/2, innerHeight*.4, 6); }, 1500);
+};
+
+// Midnight (no visible timer): celebration and unlock of the finale
+const newYear = new Date(CONFIG.newYear);
+let popped = false;
+function tick(){
+  const d = (newYear - new Date()) / 1000;
+  if (d <= 0 && !popped) {
+    popped = true; $("hm").textContent = "С Новым годом! 🎄";
+    setTimeout(() => { burst(160, innerWidth/2, innerHeight*.6, 14); buzz("heavy"); }, 500);
+  }
+  const locked = CONFIG.lockFinal && d > 0;
+  $("finalBtn").disabled = locked;
+  $("finalBtn").textContent = locked ? "Откроется в полночь 🔒" : "Открыть";
+  $("fsub").textContent = locked ? "Оно уже здесь, но откроется ровно в полночь." : "Самое важное я оставил на конец.";
+}
+tick(); setInterval(tick, 1000);
+
+// Timeline
+CONFIG.moments.forEach(m => {
+  const d = el("div"); d.append(el("em", "", m.d), el("b", "", m.t), el("p", "", m.p)); $("tl").append(d);
+});
+
+// Sheet + typewriter
+const sheet = $("sheet"); let typer;
+function openSheet(title, text, type, img){
+  clearInterval(typer); $("sh-t").textContent = title; const p = $("sh-p"), im = $("sh-img");
+  im.hidden = !img; im.innerHTML = "";
+  if (img) { const i = new Image(); i.src = img; i.alt = ""; i.onerror = () => { i.remove(); im.textContent = "Тут будет картинка"; }; im.append(i); }
+  sheet.classList.add("on");
+  if (!type) { p.textContent = text; return; }
+  p.textContent = ""; let i = 0;
+  typer = setInterval(() => { p.textContent = text.slice(0, ++i); if (i % 6 === 0) buzz("light"); if (i >= text.length) clearInterval(typer); }, 55);
+}
+let sheetLock = 0;   // пока идёт блокировка, шторку нельзя закрыть случайным нажатием
+function lockSheet(ms){ sheetLock = Date.now() + ms; $("sh-x").disabled = true; setTimeout(() => { $("sh-x").disabled = false; }, ms); }
+function closeSheet(){ if (Date.now() < sheetLock) return; clearInterval(typer); sheet.classList.remove("on"); }
+$("sh-x").onclick = closeSheet;
+sheet.onclick = e => { if (e.target === sheet) closeSheet(); };
+
+// Letters
+
+// Quiz
+let qi = 0, score = 0, busy = false;
+function showQ(){
+  const q = CONFIG.quiz[qi]; busy = false;
+  $("qp").textContent = "Вопрос " + (qi + 1) + " из " + CONFIG.quiz.length;
+  $("qq").textContent = q.q; $("qa").innerHTML = "";
+  q.a.forEach((t, i) => {
+    const b = el("button", "opt", t);
+    b.onclick = () => {
+      if (busy) return; busy = true;
+      const ok = i === q.ok; if (ok) score++;
+      b.classList.add(ok ? "ok" : "no"); if (!ok) $("qa").children[q.ok].classList.add("ok");
+      note(ok ? "success" : "error");
+      setTimeout(() => { ++qi < CONFIG.quiz.length ? showQ() : showResult(); }, 1100);
+    };
+    $("qa").append(b);
+  });
+}
+function showResult(){
+  const r = score / CONFIG.quiz.length, R = CONFIG.quizResults;
+  $("qp").textContent = "Результат: " + score + " из " + CONFIG.quiz.length;
+  $("qq").textContent = r < .5 ? R.low : r < 1 ? R.mid : R.high;
+  $("qa").innerHTML = ""; const b = el("button", "btn", "Пройти ещё раз"); b.style.marginTop = "16px";
+  b.onclick = () => { qi = 0; score = 0; showQ(); }; $("qa").append(b);
+  if (r === 1) burst(100, innerWidth/2, innerHeight*.5, 10);
+}
+showQ();
+
+// Oracle
+let last = -1;
+let spam = 0, lastTap = 0;
+$("oracleBtn").onclick = () => {
+  const now = Date.now(); spam = now - lastTap < 900 ? spam + 1 : 1; lastTap = now;
+  if (spam === 10) {   // 10 быстрых нажатий подряд = пасхалка
+    lockSheet(2500); openSheet(CONFIG.eggTitle, CONFIG.egg, false);
+    buzz("heavy"); note("warning"); burst(70, innerWidth / 2, innerHeight * .5, 9); spam = 0; return;
+  }
+  let i; do { i = Math.floor(Math.random() * CONFIG.oracles.length); } while (i === last && CONFIG.oracles.length > 1);
+  last = i; buzz("medium"); $("oracle").textContent = CONFIG.oracles[i]; $("oracleBtn").textContent = "Ещё одно";
+};
+
+// Final
+let finalDone = false;
+function spark(x, y, n){
+  const c = ["#ffd36b","#ff9f68","#e8a0b4","#7fc4d9","#ffffff","#d6455f"][Math.floor(Math.random() * 6)];
+  for (let i = 0; i < n; i++) { const a = Math.random() * 6.283, s = Math.random() * 9 + 2; bits.push({x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, w: Math.random() * 4 + 3, c, a: 0}); }
+}
+function fireworks(done){
+  cv.style.zIndex = 25; let n = 0;
+  const t = setInterval(() => {
+    spark(Math.random() * W * .8 + W * .1, Math.random() * H * .45 + H * .08, 90); buzz(n % 2 ? "medium" : "heavy");
+    if (++n >= 12) { clearInterval(t); setTimeout(() => { cv.style.zIndex = 1; done(); }, 1800); }
+  }, 600);
+}
+function showNext(){
+  const d = new Date(CONFIG.meet.date), left = Math.ceil((d - new Date()) / 86400000);
+  $("nx-r").textContent = CONFIG.cities.her.name + " · " + CONFIG.cities.me.name;
+  $("nx-d").textContent = d.toLocaleDateString("ru-RU", {day: "numeric", month: "long", year: "numeric"});
+  $("nx-l").textContent = left > 0 ? "Осталось " + left + " " + plural(left) : "Мы уже вместе";
+  $("next").classList.add("on"); note("success"); buzz("heavy");
+}
+$("nx-x").onclick = () => $("next").classList.remove("on");
+$("finalBtn").onclick = () => {
+  if (finalDone) { openSheet(CONFIG.finalTitle, CONFIG.finalText, false); return; }
+  finalDone = true;
+  fireworks(() => { openSheet(CONFIG.finalTitle, CONFIG.finalText, true); setTimeout(showNext, 60000); });
+};
+
+// Heart
+let hn = 0;
+$("heart").onclick = () => {
+  const m = CONFIG.heartMsgs; $("hm").textContent = m[hn++ % m.length];
+  buzz("medium"); const r = $("heart").getBoundingClientRect();
+  burst(14, r.left + r.width/2, r.top + r.height/2, 5);
+};
+
+// Between us
+(function(){
+  const A = CONFIG.cities.me, B = CONFIG.cities.her, rad = x => x * Math.PI / 180;
+  const h = Math.sin(rad(B.lat - A.lat) / 2) ** 2 + Math.cos(rad(A.lat)) * Math.cos(rad(B.lat)) * Math.sin(rad(B.lon - A.lon) / 2) ** 2;
+  $("km").textContent = Math.round(6371 * 2 * Math.asin(Math.sqrt(h))).toLocaleString("ru-RU") + " км";
+  ["cA","lA"].forEach(i => $(i).textContent = A.name); ["cB","lB"].forEach(i => $(i).textContent = B.name);
+  const off = tz => (new Date(new Date().toLocaleString("en-US", {timeZone: tz})) - new Date(new Date().toLocaleString("en-US", {timeZone: "UTC"}))) / 36e5;
+  const df = Math.abs(Math.round(off(B.tz) - off(A.tz)));
+  $("tdiff").textContent = df === 0 ? "Мы в одном часовом поясе" : "Разница во времени: " + df + " " + (df === 1 ? "час" : df < 5 ? "часа" : "часов");
+  const fmt = tz => new Intl.DateTimeFormat("ru-RU", {hour: "2-digit", minute: "2-digit", timeZone: tz}), fA = fmt(A.tz), fB = fmt(B.tz);
+  const upd = () => { const n = new Date(); $("tA").textContent = fA.format(n); $("tB").textContent = fB.format(n); };
+  upd(); setInterval(upd, 15000);
+})();
+
+// Tabs
+function tab(n){
+  [["main","pg-main","tb-main"],["adv","pg-adv","tb-adv"],["game","pg-game","tb-game"]].forEach(([k, p, b]) => {
+    $(p).hidden = k !== n; $(b).classList.toggle("on", k === n);
+  });
+  scrollTo(0, 0); buzz("light");
+}
+const giftOpen = () => preview || new Date() >= newYear;
+function updGift(){
+  const o = giftOpen(), b = $("tb-main");
+  b.textContent = (o ? "🎉" : "🔒") + " Поздравление"; b.classList.toggle("lock", !o); b.classList.toggle("glow", o && !preview);
+}
+$("tb-main").onclick = () => {
+  if (giftOpen()) { tab("main"); return; }
+  note("error"); openSheet(CONFIG.lockMsg.t, CONFIG.lockMsg.p, false);
+};
+$("tb-adv").onclick = () => tab("adv");
+$("tb-game").onclick = () => tab("game");
+
+// Advent calendar (7 days). Five taps on the title = preview mode for you
+let preview = false, advTaps = 0, viewed = [];
+try { viewed = JSON.parse(localStorage.getItem("adv2") || "[]"); } catch(e){}
+function buildAdv(){
+  const start = new Date(CONFIG.advent.start).getTime(); $("adv").innerHTML = "";
+  CONFIG.advent.gifts.forEach((g, i) => {
+    const day = new Date(start + i * 864e5), open = preview || new Date() >= day, seen = viewed.includes(i);
+    const b = el("button", "ad" + (open ? " open" : "") + (seen ? " seen" : ""));
+    b.append(el("b", "", String(i + 1)), el("small", "", open ? (seen ? "Открыто ✓" : "Открой!") : "🔒 " + day.toLocaleDateString("ru-RU", {day: "numeric", month: "long"})));
+    b.onclick = () => {
+      if (!open) { note("error"); return; }
+      buzz("medium"); openSheet(g.t, g.p, false, g.img);
+      if (!seen) { viewed.push(i); if (!preview) { try { localStorage.setItem("adv2", JSON.stringify(viewed)); } catch(e){} } buildAdv(); }
+    };
+    $("adv").append(b);
+  });
+}
+$("advt").onclick = () => {
+  if (++advTaps === 5) { preview = true; buildAdv(); updGift(); newGame(); note("success"); $("advsub").textContent = "Режим просмотра: все подарки открыты"; }
+};
+buildAdv();
+
+updGift(); setInterval(updGift, 1000);
+
+// Wordle
+const WL = 5, TRIES = 6, grid = $("wgrid"), kb = $("wkb");
+let word, row, cur, over, ks;
+let wTmp = null;   // в режиме просмотра прогресс держим только в памяти, на телефоне он не сохраняется
+const wIdx = () => { if (wTmp !== null) return wTmp; try { return parseInt(localStorage.getItem("wi3") || "0", 10) || 0; } catch(e){ return 0; } };
+const wAdv = () => { if (preview) { wTmp = wIdx() + 1; return; } try { localStorage.setItem("wi3", String(wIdx() + 1)); } catch(e){} };
+// слово i доступно за день до открытия подарка i (слово 0 доступно всегда)
+const wStart = () => new Date(CONFIG.advent.start).getTime();
+const wAvail = i => i === 0 || preview || Date.now() >= wStart() + (i - 1) * 864e5;
+const wDate = i => new Date(wStart() + (i - 1) * 864e5).toLocaleDateString("ru-RU", {day: "numeric", month: "long"});
+["ЙЦУКЕНГШЩЗХЪ", "ФЫВАПРОЛДЖЭ", "⌫ЯЧСМИТЬБЮ↵"].forEach(r => {
+  const d = el("div", "wr");
+  [...r].forEach(ch => {
+    const b = el("button", "wk" + (ch === "↵" || ch === "⌫" ? " wide" : ""), ch);
+    b.dataset.k = ch; b.onclick = () => press(ch); d.append(b);
+  });
+  kb.append(d);
+});
+function newGame(){
+  const w = CONFIG.wordle.words, i = wIdx();
+  row = 0; cur = ""; over = false; ks = {}; word = "";
+  grid.innerHTML = ""; for (let n = 0; n < TRIES * WL; n++) grid.append(el("div", "wc"));
+  kb.querySelectorAll(".wk").forEach(k => k.classList.remove("g", "y", "x"));
+  $("wnew").hidden = true;
+  if (i >= w.length) { over = true; $("wmsg").textContent = CONFIG.wordle.allDone; }
+  else if (!wAvail(i)) { over = true; $("wmsg").textContent = "Следующее слово откроется " + wDate(i); }
+  else { word = w[i]; $("wmsg").textContent = "Угадай слово из 5 букв"; }
+  grid.style.opacity = word ? 1 : .35;
+}
+function paint(){
+  for (let i = 0; i < WL; i++) { const c = grid.children[row * WL + i]; c.textContent = cur[i] || ""; c.classList.toggle("f", !!cur[i]); }
+}
+function press(k){
+  if (over || wbusy) return;
+  if (k === "⌫") { if (cur.length) { cur = cur.slice(0, -1); paint(); } return; }
+  if (k === "↵") { submit(); return; }
+  if (cur.length < WL) { cur += k; buzz("light"); paint(); }
+}
+let wbusy = false;
+const okWords = new Set(CONFIG.wordle.words), wcache = {};
+let wdiag = null, wtaps = [];
+const DICT = new Set("АБЗАЦ АВИТЬ АВТОР АГЕНТ АДРЕС АЗАРТ АКТЕР АКТИВ АКУЛА АКУЛЕ АКУЛУ АКУЛЫ АЛЖИР АЛЛЕЯ АЛМАЗ АЛЬФА АМБАР АМЕБА АНГЕЛ АПЧХИ АРБУЗ АРЕНА АРЕНЕ АРЕНУ АРЕНЫ АРЕСТ АРМИЯ АРУБА АРХИВ АСТРА АСТРЕ АСТРУ АСТРЫ АТАКА АТАКИ АТЛАС АТЛЕТ АТОМА АУДИО АШРАМ БАБАХ БАББЛ БАБКА БАБКЕ БАБКИ БАБКУ БАГАЖ БАГЕТ БАДЬЯ БАКСЫ БАЛЕТ БАЛКА БАЛКЕ БАЛКИ БАЛКУ БАНАН БАНДА БАНДЕ БАНДУ БАНДЫ БАНКА БАНКЕ БАНКИ БАНКУ БАНТА БАНТЕ БАНТУ БАНТЫ БАРАК БАРАН БАРОН БАСНЕ БАСНИ БАСНЮ БАСНЯ БАТАТ БАТОН БАЧОК БАШНЕ БАШНИ БАШНЮ БАШНЯ БЕГУТ БЕДРО БЕЖАЛ БЕЖИТ БЕЙГЛ БЕЙДЖ БЕКОН БЕЛАЯ БЕЛИЗ БЕЛКА БЕЛКЕ БЕЛКИ БЕЛКУ БЕЛОЕ БЕЛОЙ БЕЛУЮ БЕЛЫЕ БЕЛЫЙ БЕЛЫМ БЕЛЬЕ БЕНИН БЕНТО БЕРЕГ БЕРЕТ БИЗОН БИЛЕТ БИРЖА БИРЖЕ БИРЖИ БИРЖУ БИРКА БИРМА БИСАУ БИТВА БИТВЕ БИТВУ БИТВЫ БЛЕСК БЛИЖЕ БЛИНЫ БЛОКА БЛОКЕ БЛЮДО БОБЕР БОЖЬЯ БОКАЛ БОКОМ БОЛЕЕ БОЛЕЮ БОМБА БОМБЕ БОМБУ БОМБЫ БОНЕТ БОРТА БОРТЕ БОРТУ БОРТЫ БОРЦЫ БОРЩА БОРЩЕ БОРЩИ БОРЩУ БОТАН БОТВА БОЧКА БОЮСЬ БРАНЬ БРАТЬ БРЕНД БРОВЬ БРОНЕ БРОНИ БРОНЮ БРОНЯ БРЮКИ БУБНЫ БУДЕТ БУДКА БУДКЕ БУДКИ БУДКУ БУДНИ БУДУТ БУКВА БУКВЕ БУКВУ БУКВЫ БУКЕТ БУЛКА БУЛКЕ БУЛКИ БУЛКУ БУЛОК БУРЫЙ БУСИК БУТАН БУТОН БУФЕР БУФЕТ БЭНТО ВАГОН ВАЖЕН ВАЖНА ВАЖНО ВАЛЕТ ВАННА ВАННЕ ВАННУ ВАННЫ ВАСВЫ ВАФЛИ ВАФЛЯ ВАШЕЙ ВАШЕМ ВАШИМ ВАШИХ ВВЕДЯ ВВЕЛИ ВВЕРХ ВВОДА ВВОДЕ ВДОВА ВЕДЕТ ВЕДРО ВЕДУТ ВЕЗДЕ ВЕЛИК ВЕНИК ВЕРДЕ ВЕРИТ ВЕРНО ВЕРНЫ ВЕСЛА ВЕСЛО ВЕСНА ВЕСНЕ ВЕСНУ ВЕСНЫ ВЕСТИ ВЕТВЬ ВЕТЕР ВЕТКА ВЕТКЕ ВЕТКИ ВЕТКУ ВЕТРА ВЕТРЕ ВЕТРУ ВЕТРЫ ВЕЧЕР ВЕЩЕЙ ВЗДОХ ВЗЛЕТ ВЗМАХ ВЗРЫВ ВЗЯЛА ВЗЯЛИ ВЗЯТО ВЗЯТЬ ВИДЕЛ ВИДЕН ВИДЕО ВИДИТ ВИДНА ВИДНО ВИДНЫ ВИДЯТ ВИЗИТ ВИЛКА ВИЛКЕ ВИЛКИ ВИЛКУ ВИРУС ВИСКИ ВИХРЬ ВИШНЕ ВИШНИ ВИШНЮ ВИШНЯ ВКЛАД ВКУСА ВКУСЕ ВКУСУ ВКУСЫ ВЛАГА ВЛАГЕ ВЛАГИ ВЛАГУ ВЛЕВО ВНИЗУ ВНОВЬ ВОВСЕ ВОДКА ВОДКЕ ВОДКИ ВОДКУ ВОДОЙ ВОЖДЬ ВОЙДИ ВОЙНА ВОЙНЕ ВОЙНУ ВОЙНЫ ВОЙТИ ВОКАЛ ВОЛАН ВОЛКА ВОЛКЕ ВОЛКИ ВОЛКУ ВОЛНА ВОЛНЕ ВОЛНУ ВОЛНЫ ВОЛОС ВОРОН ВОШЛА ВОШЛИ ВРАГИ ВРАТЬ ВРАЧИ ВРЕМЕ ВРЕМИ ВРЕМЮ ВРЕМЯ ВРЕШЬ ВРОДЕ ВРОЗЬ ВСЕГО ВСЕМИ ВСЕМУ ВСЛУХ ВХОДА ВХОДЕ ВХОДЯ ВЧЕРА ВЪЕЗД ВЫБОР ВЫВОД ВЫГУЛ ВЫДАН ВЫДОХ ВЫДРА ВЫЗОВ ВЫЙТИ ВЫНОС ВЫПЕЙ ВЫХОД ВЫШЕЛ ВЫШКА ВЫШЛА ВЬЮГА ВЬЮГЕ ВЬЮГИ ВЬЮГУ ГАБОН ГАЗОН ГАИТИ ГАЙКА ГАЛКА ГАЛКЕ ГАЛКИ ГАЛКУ ГАММА ГАММЕ ГАММУ ГАММЫ ГАРАЖ ГЕДЗА ГЕРОЙ ГЛАЗА ГЛИНА ГЛИНЕ ГЛИНУ ГЛИНЫ ГЛУПО ГНАТЬ ГОВНО ГОГОТ ГОДОВ ГОДОМ ГОЛОД ГОЛОС ГОЛЬФ ГОНКА ГОНКИ ГОРАХ ГОРКА ГОРКЕ ГОРКИ ГОРКУ ГОРОД ГОРОХ ГОСТЬ ГОТОВ ГРАММ ГРАНД ГРАНЬ ГРЕХИ ГРИБА ГРИБЕ ГРИБУ ГРИБЫ ГРИВА ГРИПП ГРОЗА ГРОЗЕ ГРОЗУ ГРОЗЫ ГРУДЬ ГРУЗА ГРУЗЕ ГРУЗУ ГРУЗЫ ГРУПП ГРУША ГРУШЕ ГРУШИ ГРУШУ ГРУЩУ ГРЯЗЬ ГУБКА ДАВАЙ ДАВИД ДАВНО ДАЛЕЕ ДАМПЫ ДАНГО ДАНИЯ ДАРТС ДАТОЙ ДВЕРИ ДВЕРЬ ДВОИХ ДВОРА ДВОРЕ ДВОРУ ДВОРЫ ДВУМЯ ДЕЛАЙ ДЕЛАЛ ДЕЛАЮ ДЕМОН ДЕНЕГ ДЕТЕЙ ДЖИНН ДЗЮДО ДИВАН ДИЕГО ДИЕТА ДИЕТЕ ДИЕТУ ДИЕТЫ ДИКИЙ ДИСКА ДИСКЕ ДИСКО ДИСКУ ДЛИНА ДЛИНЕ ДЛИНУ ДЛИНЫ ДНЮХА ДОБРО ДОЖДЬ ДОЙТИ ДОЛГО ДОМЕН ДОМИК ДОМОВ ДОМОЙ ДОМОМ ДОНОР ДОСКА ДОСКЕ ДОСКИ ДОСКУ ДОСУГ ДОЧКА ДОЧКЕ ДОЧКИ ДОЧКУ ДРАКА ДРАКЕ ДРАКИ ДРАКУ ДРАМА ДРОБИ ДРОВА ДРОНТ ДРУГИ ДРУГУ ДУБАК ДУБЛЬ ДУМАЙ ДУМАЛ ДУМАЮ ДУШНО ДУШОЙ ДЫМКА ДЫРКИ ДЮЙМА ЕВРЕИ ЕВРЕЙ ЕЛЕНЫ ЕНОТА ЖАРКО ЖДАЛА ЖДАЛИ ЖДАТЬ ЖЕЛТО ЖЕНИХ ЖИВЕТ ЖИВОЙ ЖИВОТ ЖИВУТ ЖИЗНЬ ЖИЛЕТ ЖИЛОЙ ЖИРАФ ЖОКЕЙ ЖУЧОК ЗАБОР ЗАБЫЛ ЗАВОД ЗАГИБ ЗАДАЛ ЗАДАН ЗАДАЧ ЗАЖИМ ЗАЙТИ ЗАКАЗ ЗАКАТ ЗАКОН ЗАЛИВ ЗАЛОГ ЗАМКЕ ЗАМОК ЗАПАД ЗАПАС ЗАПАХ ЗАРЯД ЗАСОР ЗАТЕМ ЗАХОД ЗАЧЕМ ЗВАТЬ ЗВЕНО ЗВЕРЬ ЗВУКА ЗВУКЕ ЗВУКИ ЗВУКУ ЗДЕСЬ ЗЕБРА ЗЕБРЫ ЗЕМЛЕ ЗЕМЛИ ЗЕМЛЮ ЗЕМЛЯ ЗЕРНО ЗЕФИР ЗИМОЙ ЗЛОБА ЗЛОБЕ ЗЛОБУ ЗЛОБЫ ЗЛЮСЬ ЗМЕЕЙ ЗНАЕТ ЗНАКА ЗНАКЕ ЗНАКИ ЗНАКУ ЗНАЛА ЗНАЛИ ЗНАТЬ ЗНАЮТ ЗОМБИ ЗОНТА ЗОНТЕ ЗОНТУ ЗОНТЫ ЗУБОВ ИВРИТ ИВУАР ИГРАЙ ИГРАЛ ИГРАХ ИГРОК ИДЕАЛ ИЗВНЕ ИЗГИБ ИМЕЕТ ИМЕЛИ ИМЕНА ИМЕНИ ИМЕТЬ ИМЕЮТ ИНАЧЕ ИНДИЯ ИНДУС ИНДЮК ИНОГО ИСКРА ИСКРЕ ИСКРУ ИСКРЫ ИСЛАМ ИСПУГ ИСТЕК ИТОГИ ИХКАК ИЩЕТЕ ЙЕМЕН КААБА КАБАН КАДКА КАДРЫ КАЗАК КАЗНА КАЗНЕ КАЗНУ КАЗНЫ КАКАО КАКАЯ КАКИЕ КАКИМ КАКИХ КАКОЕ КАКОЙ КАКОМ КАКУЮ КАМЕР КАМИН КАМНИ КАНАЛ КАНАТ КАНОЭ КАПЛЕ КАПЛИ КАПЛЮ КАПЛЯ КАРПЫ КАРРИ КАРТА КАРТЕ КАРТУ КАРТЫ КАСКА КАСКЕ КАСКИ КАСКУ КАССА КАССЕ КАССУ КАССЫ КАТАР КАТЕР КАТОК КАЧОК КВАСС КВЕСТ КЕБАБ КЕГЛИ КЕНИЯ КЕПКА КИВОК КИДНИ КИОСК КИПИТ КИРКА КИСТИ КИСТЬ КИТАЙ КЛАСС КЛАТЧ КЛАУС КЛЕВО КЛОУН КЛУБА КЛУБЕ КЛУБУ КЛУБЫ КЛЫКИ КЛЮЧА КЛЮЧЕ КЛЮЧИ КЛЮЧУ КНИГА КНИГЕ КНИГИ КНИГУ КНЯЗЬ КОАЛА КОАЛЫ КОВЕР КОГДА КОДНЕ КОДОМ КОЗЕЛ КОКОС КОЛОС КОЛЬЕ КОМАР КОНГА КОНГО КОНЕК КОНЕЦ КОНЦА КОНЦЕ КОПИИ КОПИЙ КОПИЮ КОПИЯ КОРЕИ КОРЕЯ КОСАЯ КОСОЙ КОСТА КОСТИ КОСТЬ КОТИК КОФЕА КОФЕЕ КОФЕУ КОФЕЫ КОШКА КОШКЕ КОШКИ КОШКУ КРАНА КРАНЕ КРАНУ КРАНЫ КРЕСТ КРИНЖ КРОВИ КРОВЬ КРОМЕ КРУГА КРУГЕ КРУГИ КРУГУ КРУИЗ КРУПА КРУПЕ КРУПУ КРУПЫ КРУТО КРЫЛО КРЫСА КРЫТЬ КРЫША КРЫШЕ КРЫШИ КРЫШУ КУБИК КУБОК КУДРИ КУЗОВ КУКЛА КУКЛЕ КУКЛУ КУКЛЫ КУЛАК КУЛОН КУЛЬТ КУНЬЯ КУПОН КУРСЫ КУСОК КУСТА КУСТЕ КУСТУ КУСТЫ КУХНЕ КУХНИ КУХНЮ КУХНЯ ЛАВАШ ЛАВКА ЛАВКЕ ЛАВКИ ЛАВКУ ЛАМПА ЛАМПЕ ЛАМПУ ЛАМПЫ ЛАНКА ЛАПША ЛАРЬА ЛАРЬЕ ЛАРЬУ ЛАРЬЫ ЛАСКА ЛАСКЕ ЛАСКИ ЛАСКУ ЛАТУК ЛЕВАЯ ЛЕВОЕ ЛЕВОЙ ЛЕВОМ ЛЕВУЮ ЛЕВЫЕ ЛЕВЫЙ ЛЕВЫМ ЛЕГКО ЛЕГЧЕ ЛЕЖИТ ЛЕЗТЬ ЛЕНТА ЛЕНТЕ ЛЕНТУ ЛЕНТЫ ЛЕОНЕ ЛЕСКА ЛЕСОМ ЛЕТАЛ ЛЕТИТ ЛЕТОМ ЛЕТЯТ ЛИВАН ЛИВИЯ ЛИДЕР ЛИКЕР ЛИЛИЯ ЛИМИТ ЛИМОН ЛИНЗА ЛИНИЯ ЛИСТА ЛИСТЕ ЛИСТУ ЛИСТЫ ЛИСЬЯ ЛИТВА ЛИЦАМ ЛИЦОМ ЛИЧНО ЛОВКО ЛОДКА ЛОДКЕ ЛОДКИ ЛОДКУ ЛОЖКА ЛОЖКЕ ЛОЖКИ ЛОЖКУ ЛОЖНЫ ЛОСКА ЛОСКЕ ЛОСКИ ЛОСКУ ЛОТОС ЛУЗЕР ЛУНКА ЛУНОЙ ЛУЧШЕ ЛЫСЫЙ ЛЮБВИ ЛЮБИЛ ЛЮБИТ ЛЮБЛЮ ЛЮБОЕ ЛЮБОЙ ЛЮБОМ ЛЮБУЮ ЛЮБЫЕ ЛЮБЫМ ЛЮБЫХ ЛЮБЯТ ЛЮДЕЙ ЛЮДЯМ ЛЮПИН ЛЮСИЯ МАГИЯ МАЙЕН МАЙКА МАЙКЕ МАЙКИ МАЙКУ МАКАО МАКЕТ МАЛАЯ МАЛЫЕ МАЛЫШ МАНГО МАРИИ МАРКА МАРКЕ МАРКИ МАРКУ МАСКА МАСКЕ МАСКИ МАСКУ МАСЛО МАССА МАССЕ МАССУ МАССЫ МАСТЬ МАТЧИ МАШЕТ МАШИН МЕДИА МЕДИК МЕДОМ МЕЖДУ МЕЛКИ МЕЛКО МЕЛОК МЕНЕЕ МЕНТЫ МЕСТА МЕСТЕ МЕСТО МЕСЯЦ МЕТИЛ МЕТКА МЕТКЕ МЕТКИ МЕТКУ МЕТЛА МЕТОД МЕТОК МЕТРО МЕЧЕЙ МЕЧТА МЕЧТЕ МЕЧТУ МЕЧТЫ МЕШКИ МЕШОК МИЛАЯ МИЛОЕ МИЛОЙ МИЛУЮ МИЛЫЕ МИЛЫЙ МИНУС МИНУТ МИРНО МИСКА МИСКЕ МИСКИ МИСКУ МИШКА МИШКЕ МИШКИ МИШКУ МНОГО МОГЛА МОГЛИ МОГЛО МОГУТ МОДЕМ МОЕГО МОЕМУ МОЖЕМ МОЖЕТ МОЖНО МОЗГА МОЗГЕ МОЗГИ МОЗГУ МОИМИ МОЛОТ МОПЕД МОРДА МОРДЫ МОРЕЙ МОРОЗ МОСТА МОСТЕ МОСТУ МОСТЫ МОТОР МУЖИК МУСОР МУТИТ МЫСЛИ МЫСЛЬ МЫТЬЕ МЫШКА МЫШКЕ МЫШКИ МЫШКУ МЫШЦЫ МЮСЛИ МЯГКО МЯЧИК МЯЧОМ НАБОР НАВЕК НАВЫК НАЖАВ НАЗАД НАЗАР НАЙДИ НАЙМУ НАЙТИ НАЛОГ НАРОД НАСОС НАУКА НАУКЕ НАУКИ НАУКУ НАУРУ НАЦИЙ НАШЕЙ НАШЕЛ НАШИМ НАШИХ НАШЛА НЕВИС НЕЖНО НЕМОЙ НЕПАЛ НЕРВЫ НЕРПА НЕСЕТ НЕСТИ НЕСУТ НЕФТЬ НИГЕР НИКЕМ НИКТО НИТКА НИТКЕ НИТКИ НИТКУ НИТОК НОВАЯ НОВОЕ НОВОЙ НОВОМ НОВУЮ НОВЫЕ НОВЫЙ НОВЫМ НОВЫХ НОГОЙ НОГТИ НОЖИК НОЖКА НОЖКИ НОМЕР НОРМА НОРМЕ НОРМУ НОРМЫ НОСКИ НОЧЕЙ НОЧЬЮ НРАВА НРАВЕ НРАВУ НРАВЫ НУЖЕН НУЖНА НУЖНО НУЖНЫ ОБЕИХ ОБЗОР ОБИДА ОБМАН ОБМЕН ОБОИХ ОБРАЗ ОБУВЬ ОБХОД ОБЩЕЕ ОБЩЕЙ ОБЩЕМ ОБЩИЕ ОБЩИЙ ОБЩИМ ОБЩИХ ОБЪЕМ ОВОЩИ ОГОНЬ ОДНИМ ОДНИХ ОДНОЙ ОДНОМ ОЗЕРО ОЗНОБ ОКЕАН ОКНАВ ОКНАМ ОКНАХ ОКНОМ ОКОВЫ ОКОЛО ОКОНК ОКРУГ ОЛЕНЬ ОЛИВА ОПЕРА ОПЕРЕ ОПЕРУ ОПЕРЫ ОПИШИ ОПОРА ОПРОС ОПЦИИ ОПЦИЮ ОПЦИЯ ОПЫТЫ ОПЯТЬ ОРГАН ОРДЕН ОРЕХИ ОСАДА ОСАДЕ ОСАДУ ОСАДЫ ОСЕНЬ ОСЛИК ОСОБО ОСТРО ОТВЕТ ОТДЫХ ОТЕЛЬ ОТЗЫВ ОТКАЗ ОТРЯД ОТЧЕТ ОХОТА ОХОТЕ ОХОТУ ОХОТЫ ОЧЕНЬ ОЧКАХ ПАЗЛА ПАКЕТ ПАЛАУ ПАЛЕЦ ПАЛКА ПАЛКЕ ПАЛКИ ПАЛКУ ПАНДА ПАНДЫ ПАПКА ПАПКЕ ПАПКИ ПАПКУ ПАПОК ПАПУА ПАРАД ПАРИК ПАРКА ПАРКЕ ПАРКИ ПАРКУ ПАРНИ ПАРОЙ ПАРОМ ПАРТА ПАРТЕ ПАРТУ ПАРТЫ ПАРУС ПАСТА ПАСТЕ ПАСТУ ПАСТЫ ПАСТЬ ПАСХИ ПАУЗА ПАУЗЕ ПАУЗУ ПАУЗЫ ПАУКИ ПЕВЕЦ ПЕВЦЫ ПЕНИЕ ПЕПЕЛ ПЕРЕД ПЕРЕЦ ПЕРЬЯ ПЕСНЕ ПЕСНИ ПЕСНЮ ПЕСНЯ ПЕСОК ПЕТЛИ ПЕТЛЯ ПЕТРИ ПЕТУХ ПЕЧКА ПЕЧКЕ ПЕЧКИ ПЕЧКУ ПЕШКА ПИАЛА ПИКАП ПИКЕТ ПИЛОТ ПИНОК ПИРАТ ПИРОГ ПИСАЛ ПИТЬЕ ПИЦЦА ПИЦЦЕ ПИЦЦУ ПИЦЦЫ ПИШЕТ ПИШУТ ПЛАМЯ ПЛАНА ПЛАНЕ ПЛАНУ ПЛАНЫ ПЛАЩА ПЛАЩЕ ПЛАЩИ ПЛАЩУ ПЛЕЧО ПЛОДА ПЛОДЕ ПЛОДУ ПЛОДЫ ПЛОХО ПЛЫТЬ ПЛЮСА ПЛЯЖА ПЛЯЖЕ ПЛЯЖИ ПЛЯЖУ ПОВАР ПОВОД ПОДАЙ ПОДАЮ ПОЕЗД ПОЖАР ПОЗЖЕ ПОЗОР ПОИСК ПОЙДИ ПОЙДУ ПОЙТЕ ПОЙТИ ПОКАЗ ПОКОЯ ПОЛЕЙ ПОЛЕТ ПОЛКА ПОЛКЕ ПОЛКИ ПОЛКУ ПОЛОЙ ПОЛЮС ПОЛЯХ ПОМЕХ ПОМНИ ПОРЕЗ ПОРОГ ПОРТА ПОРТЕ ПОРТУ ПОРТЫ ПОСЛЕ ПОСОХ ПОСТА ПОСТЕ ПОСТУ ПОСТЫ ПОТОК ПОТОМ ПОХОД ПОХОЖ ПОЧВА ПОЧВЕ ПОЧВУ ПОЧВЫ ПОЧТА ПОЧТЕ ПОЧТИ ПОЧТУ ПОЧТЫ ПОШЕЛ ПОШЛИ ПОШЛО ПОЭМА ПОЭМЕ ПОЭМУ ПОЭМЫ ПРАВА ПРАВО ПРИДУ ПРИЕМ ПРИНЦ ПРОБА ПРОБЕ ПРОБУ ПРОБЫ ПРОЕМ ПРОЗА ПРОЗЕ ПРОЗУ ПРОЗЫ ПРОШУ ПРОЩЕ ПРУДА ПРУДЕ ПРУДУ ПРУДЫ ПРЯЖА ПРЯМО ПТИЦА ПТИЦЕ ПТИЦУ ПТИЦЫ ПУДОВ ПУЛЬС ПУЛЬТ ПУНКТ ПУРГА ПУСТО ПУТЕЙ ПУТЕМ ПУТЯХ ПУЧОК ПУШКА ПУШКЕ ПУШКИ ПУШКУ ПЧЕЛА ПЧЕЛЕ ПЧЕЛУ ПЧЕЛЫ ПЬЕСА ПЬЕСЕ ПЬЕСУ ПЬЕСЫ ПЯТАК ПЯТНА ПЯТНО РАБОТ РАВЕН РАВНО РАДИО РАЗВЕ РАЗУМ РАЙОН РАМКА РАМКЕ РАМКИ РАМКУ РАНЕЕ РАНЕЦ РАЧОК РВОТА РЕГБИ РЕДКО РЕЖИМ РЕЗКО РЕКОЙ РЕЧИС РЕЧКА РЕЧКЕ РЕЧКИ РЕЧКУ РЕШИТ РЖАКА РЖАТЬ РИКША РИСКА РИСОМ РИФМА РИФМЕ РИФМУ РИФМЫ РОБОТ РОВНО РОЖКИ РОЖОК РОЛИК РОМАН РОСТА РОСТЕ РОСТУ РОСТЫ РОТИВ РОЯЛЬ РУБЕЖ РУБКА РУБЛЬ РУЖЬЕ РУКАВ РУКОЙ РУЛОН РУПОР РУЧЕЙ РУЧКА РУЧКЕ РУЧКИ РУЧКУ РЫБАК РЫБКА РЫБКЕ РЫБКИ РЫБКУ РЫБОЙ РЫЖАЯ РЫЖИЕ РЫЖИЙ РЫНКА РЫНКЕ РЫНКИ РЫНКУ РЫНОК РЫЧАГ РЯДОМ САДОМ САЙТА САЙТЕ САЙТУ САЙТЫ САЛАТ САЛОН САЛЮТ САМИХ САМОА САМОЕ САМОЙ САМОМ САМЫЙ САМЫМ САМЫХ САНКИ САНТА САПОГ САУНА САХАР СБОЕВ СБОЙВ СБОРА СБОЯХ СБРОС СВЕТА СВЕЧА СВЕЧЕ СВЕЧИ СВЕЧУ СВИСТ СВОЕЙ СВОЕМ СВОИМ СВОИХ СВЯЗИ СВЯЗЬ СГЛАЗ СДВИГ СДОБА СЕАНС СЕБЯВ СЕВЕР СЕДОЙ СЕДЫЕ СЕЗОН СЕЛФИ СЕМЬИ СЕМЬЯ СЕРАЯ СЕРИЯ СЕРОЕ СЕРОЙ СЕРЫЕ СЕРЫЙ СЕСТЬ СЕТЕЙ СЕТКА СЕТЬЮ СЕТЯМ СЕТЯХ СЕУТА СИНЕЕ СИНЕЙ СИНИЕ СИНИЙ СИНТО СИНЯЯ СИРИЯ СКАЖИ СКАЖУ СКАЛА СКАЛЕ СКАЛУ СКАЛЫ СКВЕР СКЕЙТ СКЛОН СКОРО СКРЫТ СКУКА СКУНС СЛАВА СЛАВЕ СЛАВУ СЛАВЫ СЛЕВА СЛЕДЫ СЛЕЗА СЛЕЗЫ СЛОВА СЛОВЕ СЛОВО СЛОВУ СЛОВЫ СЛОНА СЛОНЕ СЛОНУ СЛОНЫ СЛУЖБ СЛУХИ СЛЫШУ СЛЮНИ СМАРТ СМЕЛО СМЕНА СМЕНЕ СМЕНУ СМЕНЫ СМЕРЧ СМЕХУ СМОГУ СМЫСЛ СНЕГИ СНОВА СНЯТО СНЯТЬ СОБОЙ СОБОР СОВЕТ СОВОК СОРТА СОРТЕ СОРТУ СОРТЫ СОСКА СОСНА СОСНЕ СОСНУ СОСНЫ СОСУД СОТКА СОТНЯ СОШЕЛ СПАМА СПАТЬ СПЕШУ СПИНА СПИНЕ СПИНУ СПИНЫ СПЛАВ СПОНЖ СПОРТ СПРУТ СПУСК СРАЗУ СРЕДА СРЕДЕ СРЕДИ СРЕДУ СРЕДЫ СРОКА СТАДО СТАЛА СТАЛИ СТАЛО СТАЛЬ СТАТЬ СТВОЛ СТЕЙК СТЕКА СТЕНА СТЕНЕ СТЕНУ СТЕНЫ СТИЛЕ СТИЛИ СТИЛЬ СТИЛЯ СТИХИ СТОИТ СТОЛА СТОЛБ СТОЛЕ СТОЛУ СТОЛЫ СТОПА СТРАХ СТРОК СТРУЯ СУДАН СУДНО СУДЬЯ СУМКА СУМКЕ СУМКИ СУМКУ СУММА СУММУ СУПЕР СУТКИ СХЕМА СХЕМЕ СХЕМУ СХЕМЫ СЦЕНА СЦЕНЕ СЦЕНУ СЦЕНЫ СЧЕТА СЧЕТЫ СЪЕЗД СЫНОК СЫНОМ СЫЩИК СЮЖЕТ ТАЙНА ТАЙНЕ ТАЙНО ТАЙНУ ТАЙНЫ ТАКАЯ ТАКВЫ ТАКЖЕ ТАКИЕ ТАКИМ ТАКИХ ТАКОЕ ТАКОЙ ТАКСИ ТАКУЮ ТАЛОН ТАМАЛ ТАНЕЦ ТАНКА ТАНКЕ ТАНКИ ТАНКУ ТАНЦЫ ТАПКИ ТВОЕЙ ТВОИМ ТВОИХ ТЕАТР ТЕГОВ ТЕГОМ ТЕКСТ ТЕЛЕЦ ТЕЛОМ ТЕМНО ТЕНЬЮ ТЕПЛО ТЕРКС ТЕСТЕ ТЕСТО ТЕХАС ТЕЧЕТ ТИАРА ТИГРА ТИМОР ТИПАМ ТИПАХ ТИПОВ ТИПОМ ТИРАН ТИСКИ ТИТАН ТИХАЯ ТИХИЕ ТИХИЙ ТИХОЕ ТИХОЙ ТИХУЮ ТИЧЕЛ ТОВАР ТОГДА ТОКЕН ТОКИО ТОЛКУ ТОЛПА ТОЛПЕ ТОЛПУ ТОЛПЫ ТОМАТ ТОНАХ ТОНГА ТОПОР ТОРГА ТОРГЕ ТОРГИ ТОРГУ ТОРТА ТОРТЕ ТОРТУ ТОРТЫ ТОСКА ТОЧКА ТОЧКЕ ТОЧКИ ТОЧКУ ТОЧНО ТРАВА ТРАВЕ ТРАВУ ТРАВЫ ТРЕМЯ ТРЕФЫ ТРОНА ТРОНЕ ТРОНУ ТРОНЫ ТРОПА ТРОПЕ ТРОПУ ТРОПЫ ТРОСЫ ТРУБА ТРУБЕ ТРУБУ ТРУБЫ ТРУДА ТРУДЕ ТРУДУ ТРУДЫ ТРУСЫ ТУМАН ТУНИС ТУПИК ТУФЛИ ТУФЛЯ ТУЧЕЙ ТУЧКА ТУЧКЕ ТУЧКИ ТУЧКУ ТЫКВА ТЫКВЫ ТЭНГУ ТЯНЕТ УГОЛЬ УГРОЗ УДАРА УДАРЕ УДАРУ УДАРЫ УДАЧА УДАЧЕ УДАЧИ УДАЧУ УЖАСЕ УЖАСЫ УЗЛОВ УЗЛОМ УЗНАВ УЗОРЫ УЙДЕМ УЙДЕТ УЙДУТ УКРОП УЛИЦА УЛИЦЕ УЛИЦУ УЛИЦЫ УМНАЯ УМНИК УМНОЙ УМНУЮ УМНЫЕ УМНЫЙ УМОРА УПАЛА УПЫРЬ УРОКА УРОКЕ УРОКИ УРОКУ УСЛУГ УСНУЛ УСПЕХ УСТАЛ УТРОМ УЧЕБА УЧЕБЕ УЧЕБУ УЧЕБЫ УЧЕТА УЧИТЬ УШАМИ УЭЛЬС УЮТНО ФАЙЛА ФАЙЛЕ ФАЙЛУ ФАЙЛЫ ФАКЕЛ ФАКТЫ ФАНАТ ФАСАД ФАТЕХ ФЕРМА ФЕРМЕ ФЕРМУ ФЕРМЫ ФИДЖИ ФИЗИК ФИЛИН ФИЛЬМ ФИНАЛ ФИНИШ ФИРМА ФИРМЕ ФИРМУ ФИРМЫ ФЛАГА ФЛАГЕ ФЛАГИ ФЛАГУ ФЛИРТ ФОКУС ФОНДЮ ФОРМА ФОРМЕ ФОРМУ ФОРМЫ ФОТКА ФОТКЕ ФОТКИ ФОТКУ ФРАЗА ФРАЗЕ ФРАЗУ ФРАЗЫ ФРЕЙМ ФРУКТ ФУНТА ХАЛАТ ХАМАМ ХАМСА ХВОСТ ХИМИК ХИМИЯ ХИТРО ХЛЕБА ХЛЕБЕ ХЛЕБУ ХЛЕБЫ ХОБОТ ХОДИЛ ХОЛМА ХОЛМЕ ХОЛМУ ХОЛМЫ ХОЛОД ХОМЯК ХОСТА ХОСТЕ ХОТЕЛ ХОТИМ ХОТЯТ ХОХОТ ХОЧЕТ ХУДОЙ ХУТОР ЦВЕТА ЦВЕТЕ ЦВЕТУ ЦВЕТЫ ЦЕЛЕЙ ЦЕЛЫМ ЦЕЛЫХ ЦЕЛЬЮ ЦЕЛЯХ ЦЕНАХ ЦЕНВЫ ЦЕНОЙ ЦЕНТР ЦИКЛЫ ЦИФРА ЦИФРЕ ЦИФРУ ЦИФРЫ ЦЫПЛЕ ЦЫПЛИ ЦЫПЛЮ ЦЫПЛЯ ЧАЙКА ЧАЙКЕ ЧАЙКИ ЧАЙКУ ЧАЛМА ЧАСОВ ЧАСТИ ЧАСТО ЧАСТЬ ЧАТАХ ЧАТОМ ЧАШКА ЧАШКЕ ЧАШКИ ЧАШКУ ЧЕЛКА ЧЕЛКЕ ЧЕЛКИ ЧЕЛКУ ЧЕРВЫ ЧЕРВЬ ЧЕРЕЗ ЧЕРЕП ЧЕРНО ЧЕРТА ЧЕРТЫ ЧЕСТЬ ЧЕТКИ ЧЕТКО ЧЕХИЯ ЧИСЕЛ ЧИСЛА ЧИСЛЕ ЧИСЛО ЧИСТО ЧИТАЙ ЧИТАЛ ЧИТАЮ ЧЛЕНА ЧЛЕНУ ЧЛЕНЫ ЧТОБЫ ЧУДАК ЧУЛКИ ШАЙБА ШАЙБЕ ШАЙБУ ШАЙБЫ ШАЛАШ ШАПКА ШАПКЕ ШАПКИ ШАПКУ ШАРИК ШАРФА ШАРФЕ ШАРФУ ШАРФЫ ШАТЕР ШАХТА ШАШКА ШЕПОТ ШЕСТИ ШЕСТЬ ШИТЬЕ ШКАФА ШКАФЕ ШКАФУ ШКАФЫ ШКОЛА ШКОЛЕ ШКОЛУ ШКОЛЫ ШКУРА ШКУРЕ ШКУРУ ШКУРЫ ШЛЯПА ШЛЯПЕ ШЛЯПУ ШЛЯПЫ ШОРТЫ ШОССЕ ШПАГА ШПАЛЫ ШПИОН ШПРИЦ ШРИФТ ШТАМП ШТАНЫ ШТАТЫ ШТОРЫ ШТУРМ ШУМНО ШУРУП ШУТКА ШУТКЕ ШУТКИ ШУТКУ ЩЕНОК ЩЕТКА ЩЕТКЕ ЩЕТКИ ЩЕТКУ ЭКРАН ЭЛИТА ЭЛИТЕ ЭЛИТУ ЭЛИТЫ ЭМАЛЬ ЭПОХА ЭПОХЕ ЭПОХИ ЭПОХУ ЭТАЖИ ЭТАПА ЭТАПЕ ЭТИМИ ЭТОГО ЭТОМУ ЮЖНАЯ ЮЖНЫЕ ЮЖНЫЙ ЮНОША ЮНОШЕ ЮНОШИ ЮНОШУ ЮРИСТ ЮЭБИН ЯБЛОК ЯВНАЯ ЯВНОЕ ЯВНОЙ ЯВНУЮ ЯВНЫМ ЯВНЫХ ЯГОДА ЯГОДЕ ЯГОДУ ЯГОДЫ ЯЗЫКА ЯЗЫКЕ ЯЗЫКИ ЯКОРЬ ЯРКАЯ ЯРКИЕ ЯРКИЙ ЯРКОЕ ЯРКОЙ ЯРЛЫК ЯСНОМ ЯЩИКА ЯЩИКЕ ЯЩИКИ ЯЩИКУ".split(" "));   // слова, которые принимаются без интернета
+(CONFIG.wordle.extra || []).forEach(w => DICT.add(w));            // свои слова: CONFIG.wordle.extra
+let NG2 = new Set(), NG3 = new Set();
+function trainNg(){   // какие пары и тройки букв встречаются в русских словах словаря
+  NG2 = new Set(); NG3 = new Set();
+  DICT.forEach(w => { const q = "^" + w + "$"; for (let i = 0; i + 2 <= q.length; i++) NG2.add(q.slice(i, i + 2)); for (let i = 0; i + 3 <= q.length; i++) NG3.add(q.slice(i, i + 3)); });
+}
+trainNg();
+function looksLikeWord(w){   // похоже ли по сочетаниям букв: все пары известны и не больше одной неизвестной тройки
+  const q = "^" + w + "$"; let miss = 0;
+  for (let i = 0; i + 2 <= q.length; i++) if (!NG2.has(q.slice(i, i + 2))) return false;
+  for (let i = 0; i + 3 <= q.length; i++) if (!NG3.has(q.slice(i, i + 3))) miss++;
+  return miss <= 1;
+}
+// необязательный файл words.txt рядом с index.html (по слову в строке): добавляет слова в словарь
+fetch("words.txt").then(r => r.ok ? r.text() : "").then(t => {
+  const add = t.split(/\s+/).map(x => x.toUpperCase().replace(/Ё/g, "Е")).filter(x => x.length === 5 && /^[А-Я]+$/.test(x));
+  if (add.length) { add.forEach(x => DICT.add(x)); trainNg(); }
+}).catch(() => {});
+// Оффлайн-проверка «похоже ли на русское слово» (если интернет не отвечает)
+function plausible(w){
+  const V = "АЕЁИОУЫЭЮЯ", v = [...w].filter(c => V.includes(c)).length;
+  if (v < 1 || v > 4) return false;                                  // нужна гласная, но не одни гласные
+  if (/(.)\1\1/.test(w)) return false;                                // ААА, ККК
+  if (/^[ЬЪЫ]/.test(w) || /^Й[БВГДЖЗКЛМНПРСТФХЦЧШЩ]/.test(w)) return false;
+  if (/[АЕЁИОУЫЭЮЯ][ЬЪ]|[ЬЪ]{2}|Ъ$/.test(w)) return false;
+  if (/[ГКХЖШЧЩ]Ы|[ЖШЧЩ]Я/.test(w)) return false;
+  if (/[БВГДЖЗКЛМНПРСТФХЦЧШЩ]Й/.test(w)) return false;
+  if (/Щ[БВГДЖЗКЛМНПРСТФХЦЧШЩ]|Ш[ШЩЖЦ]|Ч[ШЩЖЦ]|([БВГДЖЗКЛМНПРСТФХЦЧШЩ])\1$/.test(w)) return false;   // ШЩ, ЧЖ, ...ВВ на конце
+  if (/[БВГДЖЗКЛМНПРСТФХЦЧШЩЬ]{4,}/.test(w)) return false;           // 4 согласных подряд почти не бывает
+  for (const row of ["ЙЦУКЕНГШЩЗХЪ", "ФЫВАПРОЛДЖЭ", "ЯЧСМИТЬБЮ"])       // «ЙЦУКЕ», «ФЫВАП» — набор по клавиатуре
+    for (let i = 0; i + 4 <= row.length; i++) { const q = row.slice(i, i + 4); if (w.includes(q) || w.includes([...q].reverse().join(""))) return false; }
+  return true;
+}
+// JSONP: запасной путь, если браузер блокирует обычный запрос (CORS)
+function jsonp(url, test){
+  return new Promise(res => {
+    const cb = "cb" + Math.random().toString(36).slice(2), sc = document.createElement("script");
+    const done = v => { clearTimeout(t); delete window[cb]; sc.remove(); res(v); };
+    const t = setTimeout(() => done(null), 2500);
+    window[cb] = j => { let v = null; try { v = test(j); } catch(e){} done(v); };
+    sc.onerror = () => done(null);
+    sc.src = url + "&callback=" + cb; document.head.append(sc);
+  });
+}
+async function ask(u, test){
+  const viaFetch = (async () => {
+    try {
+      const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 2500);
+      const r = await fetch(u[0], {signal: ctl.signal}); clearTimeout(t);
+      return r.ok ? test(await r.json()) : null;
+    } catch(e){ return null; }
+  })();
+  return new Promise(res => {   // оба пути параллельно, берём первый настоящий ответ
+    let n = 0; const fin = v => { if (v !== null) res(v); else if (++n === 2) res(null); };
+    viaFetch.then(fin); jsonp(u[1], test).then(fin);
+  });
+}
+async function isWord(w){
+  if (okWords.has(w) || DICT.has(w)) return true;
+  if (w in wcache) return wcache[w];
+  const q = encodeURIComponent(w.toLowerCase());
+  const spU = "https://speller.yandex.net/services/spellservice.json/checkText?lang=ru&text=" + q;
+  const wkU = "https://ru.wiktionary.org/w/api.php?action=query&format=json&titles=" + q;
+  // два источника параллельно: Яндекс.Спеллер и Викисловарь; null = источник не ответил
+  const [sp, wk] = await Promise.all([
+    ask([spU, spU], j => Array.isArray(j) ? j.length === 0 : null),
+    ask([wkU + "&origin=*", wkU], j => j && j.query && j.query.pages ? !("-1" in j.query.pages) : null)
+  ]);
+  wdiag = {w, sp, wk};
+  let ok;
+  if (sp === true) ok = true;
+  else if (sp === false) ok = wk === true && plausible(w);
+  else if (wk !== null) ok = wk && plausible(w);
+  else return plausible(w) && looksLikeWord(w);   // оба сервиса молчат: принимаем только то, что похоже на русское слово
+  wcache[w] = ok; return ok;
+}
+async function submit(){
+  if (wbusy) return;
+  if (cur.length < WL) { $("wmsg").textContent = "Нужно 5 букв"; note("error"); return; }
+  wbusy = true; $("wmsg").textContent = "Проверяю слово…";
+  const real = await isWord(cur); wbusy = false;
+  if (real !== true) {
+    $("wmsg").textContent = "Такого слова нет в словаре"; note("error");
+    for (let i = 0; i < WL; i++) { const c = grid.children[row * WL + i]; c.classList.add("sh"); setTimeout(() => c.classList.remove("sh"), 400); }
+    return;
+  }
+  const res = Array(WL).fill("x"), left = {}, rank = {x: 1, y: 2, g: 3};
+  for (let i = 0; i < WL; i++) { if (cur[i] === word[i]) res[i] = "g"; else left[word[i]] = (left[word[i]] || 0) + 1; }
+  for (let i = 0; i < WL; i++) if (res[i] !== "g" && left[cur[i]] > 0) { res[i] = "y"; left[cur[i]]--; }
+  res.forEach((r, i) => {
+    const c = grid.children[row * WL + i]; setTimeout(() => c.classList.add(r), i * 120);
+    const k = kb.querySelector('[data-k="' + cur[i] + '"]');
+    if (k && rank[r] > (ks[cur[i]] || 0)) { ks[cur[i]] = rank[r]; k.classList.remove("x", "y", "g"); k.classList.add(r); }
+  });
+  if (cur === word) {
+    over = true; wAdv(); $("wmsg").textContent = CONFIG.wordle.win; note("success"); $("wnew").textContent = "Дальше";
+    setTimeout(() => burst(120, innerWidth / 2, innerHeight * .5, 12), 700); $("wnew").hidden = false; return;
+  }
+  if (++row >= TRIES) { over = true; $("wmsg").textContent = CONFIG.wordle.lose; note("error"); $("wnew").textContent = "Ещё раз"; $("wnew").hidden = false; return; }
+  cur = ""; $("wmsg").textContent = "Осталось попыток: " + (TRIES - row);
+}
+$("wnew").onclick = newGame;
+addEventListener("keydown", e => {
+  if ($("pg-game").hidden || $("gw").hidden || e.ctrlKey || e.metaKey) return;
+  const k = e.key === "Enter" ? "↵" : e.key === "Backspace" ? "⌫" : e.key.toUpperCase().replace("Ё", "Е");
+  if (k.length === 1 && "ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ↵⌫".includes(k)) press(k);
+});
+newGame();
+setInterval(() => { const i = wIdx(); if (over && !word && i < CONFIG.wordle.words.length && wAvail(i)) newGame(); }, 5000);
+
+// Game switcher (arrows)
+let curGame = "w";
+function showGame(g){
+  curGame = g; $("gw").hidden = g !== "w"; $("gm").hidden = g !== "m";
+  $("gname").textContent = g === "w" ? "Вордли" : "Камушки"; buzz("light");
+}
+$("g-prev").onclick = $("g-next").onclick = () => showGame(curGame === "w" ? "m" : "w");
+
+// Match-3 («Камушки»): бомбы и бонусы
+// 4 в ряд = полоса (↔/↕, сметает ряд/столбец), угол/«Т» = бомба ✸ (3×3), 5 в ряд = радужный камень (меняешь с любым: сметает все камни его цвета), ★ = +2 хода
+const MN = 7, MT = 5, MMOVES = 30, mg = $("mgrid");
+let mb, ms, msel = null, mscore = 0, mmoves = 0, mbusy = false, fx = {}, mgot = 0, mlvl = 0, mneed = {}, mtarget = {}, mnext = false, mlives = 3, mlost = 0; let mholes = new Set(), mcharge = 0, mwaveCharge = 0, mice = [];
+const sleep = ms => new Promise(r => setTimeout(r, ms)), rnd = () => Math.floor(Math.random() * MT), rc = i => [Math.floor(i / MN), i % MN];
+function mRuns(){
+  const runs = [];
+  for (let r = 0; r < MN; r++) for (let c = 0; c < MN; c++) {
+    const v = mb[r][c]; if (v < 0 || v >= MT) continue;
+    if (c === 0 || mb[r][c - 1] !== v) { let k = c; while (k < MN && mb[r][k] === v) k++; if (k - c >= 3) runs.push({d: "h", c: Array.from({length: k - c}, (_, j) => r * MN + c + j)}); }
+    if (r === 0 || mb[r - 1][c] !== v) { let k = r; while (k < MN && mb[k][c] === v) k++; if (k - r >= 3) runs.push({d: "v", c: Array.from({length: k - r}, (_, j) => (r + j) * MN + c)}); }
+  }
+  return runs;
+}
+function mSwap(i, j){
+  const [r1, c1] = rc(i), [r2, c2] = rc(j);
+  [mb[r1][c1], mb[r2][c2]] = [mb[r2][c2], mb[r1][c1]]; [ms[r1][c1], ms[r2][c2]] = [ms[r2][c2], ms[r1][c1]];
+}
+function mCanMove(){
+  for (let i = 0; i < MN * MN; i++) for (const d of [1, MN]) {
+    const j = i + d; if (j >= MN * MN || (d === 1 && j % MN === 0) || mholes.has(i) || mholes.has(j) || mice[i] || mice[j]) continue;
+    const [r1, c1] = rc(i), [r2, c2] = rc(j);
+    mSwap(i, j); const ok = mRuns().length > 0 || mb[r1][c1] === 9 || mb[r2][c2] === 9; mSwap(i, j);
+    if (ok) return true;
+  }
+  return false;
+}
+function mFill(){
+  do {
+    mb = Array.from({length: MN}, (_,r) => Array.from({length: MN}, (_,c) => mholes.has(r*MN+c) ? -2 : rnd())); ms = Array.from({length: MN}, () => Array(MN).fill(0));
+    mice = Array.from({length: MN * MN}, (_, i) => mholes.size === 0 && mlvl >= 6 && !mholes.has(i) && Math.random() < .18 ? 1 : 0);
+    let g = 0, rn; while ((rn = mRuns()).length && g++ < 200) rn.forEach(x => { const [r, c] = rc(x.c[1]); mb[r][c] = rnd(); });
+  } while (mRuns().length || !mCanMove());
+}
+const mBombCount = () => mb.flat().filter(v => v === 9).length + ms.flat().filter(v => v === 3).length;
+function mPlan(pref){
+  const runs = mRuns(); if (!runs.length) return null;
+  const clear = new Set(), make = new Map(), dirs = {};
+  runs.forEach(rn => rn.c.forEach(k => { clear.add(k); (dirs[k] = dirs[k] || new Set()).add(rn.d); }));
+  const at = rn => { const p = rn.c.find(k => pref.includes(k)); return p !== undefined ? p : rn.c[rn.c.length >> 1]; };
+  runs.forEach(rn => { const k = at(rn); if (make.has(k)) return; if (rn.c.length >= 5) make.set(k, 4); else if (rn.c.length === 4) make.set(k, rn.d === "h" ? 1 : 2); });
+  Object.keys(dirs).forEach(k => { if (dirs[k].size === 2 && !make.has(+k)) make.set(+k, 3); });
+  let bombSlots = Math.max(0, 5 - mBombCount());
+  for (const [k, special] of make) {
+    if (special === 3 || special === 4) {
+      if (bombSlots > 0) bombSlots--;
+      else make.delete(k);
+    }
+  }
+  return {clear, make};
+}
+function mBombPlan(i, j){
+  const [r1, c1] = rc(i), [r2, c2] = rc(j), clear = new Set([i, j]);
+  const t = mb[r1][c1] === 9 ? mb[r2][c2] : mb[r1][c1];
+  for (let r = 0; r < MN; r++) for (let c = 0; c < MN; c++) if (!mholes.has(r * MN + c) && (t === 9 || mb[r][c] === t)) clear.add(r * MN + c);
+  return {clear, make: new Map()};
+}
+function mExpand(clear, make){
+  const seen = new Set([...clear].filter(k => !mholes.has(k))), q = [...seen], add = k => { if (!mholes.has(k) && !seen.has(k)) { seen.add(k); q.push(k); } };
+  while (q.length) {
+    const k = q.pop(), [r, c] = rc(k), s = ms[r][c];
+    if (s === 1) for (let x = 0; x < MN; x++) add(r * MN + x);
+    else if (s === 2) for (let y = 0; y < MN; y++) add(y * MN + c);
+    else if (s === 3) for (let y = Math.max(0, r - 1); y <= Math.min(MN - 1, r + 1); y++) for (let x = Math.max(0, c - 1); x <= Math.min(MN - 1, c + 1); x++) add(y * MN + x);
+  }
+  make.forEach((s, k) => seen.delete(k));
+  return seen;
+}
+let mcell = [], mbtn = [];
+function mBuild(){
+  mg.innerHTML = ""; mcell = []; mbtn = [];
+  for (let r = 0; r < MN; r++) for (let c = 0; c < MN; c++) {
+    const cell = el("div", "cell"), b = el("button", "gm"); b.onclick = () => { if (!mgSwipeClick) mTap(r, c); };
+    cell.append(b); mg.append(cell); mcell.push(cell); mbtn.push(b);
+  }
+}
+let mgSwipeStart = null, mgSwipeClick = false, mgHeldStone = null;
+mg.style.touchAction = "none";
+function mgReleaseStone(){
+  if (mgHeldStone) {
+    mgHeldStone.style.zIndex = "";
+    mgHeldStone = null;
+  }
+}
+mg.addEventListener("pointerdown", e => {
+  const b = e.target.closest(".gm");
+  if (!b || mbusy) return;
+  mgReleaseStone();
+  mgSwipeStart = {x: e.clientX, y: e.clientY, i: mbtn.indexOf(b), id: e.pointerId};
+  mgHeldStone = b;
+  b.style.transform = "scale(1.13)";
+  b.style.zIndex = "5";
+  b.animate([
+    {transform: "scale(1.13) rotate(-2deg)"},
+    {transform: "scale(1.13) rotate(2deg)"}
+  ], {duration: 750, iterations: Infinity, direction: "alternate", easing: "ease-in-out"});
+});
+mg.addEventListener("pointerup", e => {
+  if (!mgSwipeStart || e.pointerId !== mgSwipeStart.id) return;
+  if (mgHeldStone) {
+    mgHeldStone.getAnimations().forEach(a => a.cancel());
+    mgHeldStone.style.transform = "";
+  }
+  mgReleaseStone();
+  const start = mgSwipeStart; mgSwipeStart = null;
+  const dx = e.clientX - start.x, dy = e.clientY - start.y;
+  if (Math.hypot(dx, dy) < 18) return;
+  mgSwipeClick = true;
+  setTimeout(() => { mgSwipeClick = false; }, 350);
+  const [r, c] = rc(start.i);
+  let nr = r, nc = c;
+  if (Math.abs(dx) > Math.abs(dy)) nc += dx > 0 ? 1 : -1;
+  else nr += dy > 0 ? 1 : -1;
+  if (nr < 0 || nr >= MN || nc < 0 || nc >= MN) return;
+  mTap(r, c);
+  mTap(nr, nc);
+});
+mg.addEventListener("pointercancel", () => {
+  mgSwipeStart = null;
+  if (mgHeldStone) {
+    mgHeldStone.getAnimations().forEach(a => a.cancel());
+    mgHeldStone.style.transform = "";
+  }
+  mgReleaseStone();
+});
+function mRender(){
+  if (!mcell.length) mBuild();
+  const anim = [];
+  for (let i = 0; i < MN * MN; i++) {
+    const [r, c] = rc(i), v = mb[r][c], s = ms[r][c], cell = mcell[i], b = mbtn[i], a = [];
+    cell.className = "cell" + (v === -2 ? " hole" : v < 0 ? " nil" : " t" + v) + (msel === i ? " sel" : "") + (mice[i] ? " ice" : "");
+    b.className = "gm"; b.style.visibility = v < 0 ? "hidden" : "visible"; b.disabled = v < 0;
+    if (s) b.dataset.s = s; else delete b.dataset.s;
+    if (fx.pop && fx.pop.has(i)) a.push([0, "pop"]);
+    if (fx.born && fx.born.has(i)) a.push([1, "born"]);
+    if (fx.drop && fx.drop.has(i)) { cell.style.setProperty("--dy", fx.drop.get(i)); a.push([0, "fall"]); }
+    if (fx.swp && fx.swp.has(i)) { const [dx, dy] = fx.swp.get(i); b.style.setProperty("--dx", dx); b.style.setProperty("--dy", dy); a.push([1, "swp"]); }
+    if (a.length) anim.push([i, a]);
+  }
+  if (anim.length) void mg.offsetWidth;   // фиксируем состояние без анимаций, чтобы новые запускались заново
+  anim.forEach(([i, a]) => a.forEach(([w, cls]) => (w ? mbtn[i] : mcell[i]).classList.add(cls)));
+  fx = {}; $("m-score").textContent = "Очки: " + mscore; $("m-moves").textContent = "Ходы: " + mmoves; $("m-lives").innerHTML = [0, 1, 2].map(k => '<i class="hp' + (k < mlives ? "" : " off") + '">\u2665\uFE0E</i>').join(""); mBar(); mHud(); $("multa").style.setProperty("--charge", mcharge + "%"); $("multa").disabled = mcharge < 100 || mbusy;
+  $("mwave").style.setProperty("--charge", mwaveCharge + "%"); $("mwave").disabled = mwaveCharge < 100 || mbusy || msel === null;
+}
+async function mCascade(pref, first){
+  let combo = 0, plan = first || mPlan(pref);
+  while (plan) {
+    combo++;
+    const clear = new Set([...mExpand(plan.clear, plan.make)].filter(k => !mholes.has(k)));
+    // Лёд выдерживает первое попадание: снимаем броню, но сохраняем камень.
+    for (const k of [...clear]) if (mice[k]) { mice[k] = 0; clear.delete(k); }
+    let stars = 0, haz = 0;
+    clear.forEach(k => { const [r, c] = rc(k), t = mb[r][c]; if (t >= 0 && t < MT) { mcharge = Math.min(100, mcharge + 2); mwaveCharge = Math.min(100, mwaveCharge + 2); } if (t === 8) haz++; if (ms[r][c] === 5) stars++; if (((t >= 0 && t < MT) || t === 8) && mneed[t] > 0) mneed[t]--; });
+    mmoves += stars * 2; mscore += (clear.size - haz) * 4 * combo + plan.make.size * 10;
+    if (haz) { mlost += haz; mlives = Math.max(0, mlives - haz); note("error"); buzz("heavy"); mg.classList.add("hit"); setTimeout(() => mg.classList.remove("hit"), 450); }
+    $("mmsg").textContent = (mlost ? "Взорвалась мина! −" + mlost + (mlost === 1 ? " жизнь. " : " жизни. ") : "") + (combo > 1 ? "Комбо ×" + combo + "! " : "") + (stars ? "Бонус: +" + stars * 2 + " хода ★ " : "") + (plan.make.size ? "Новый бонус! " : "");
+    fx.pop = clear; mRender(); buzz(combo > 1 || plan.make.size ? "medium" : "light"); await sleep(260);
+    clear.forEach(k => { const [r, c] = rc(k); mb[r][c] = -1; ms[r][c] = 0; mice[k] = 0; });
+    plan.make.forEach((s, k) => { const [r, c] = rc(k); ms[r][c] = s; if (s === 4) mb[r][c] = 9; });
+    const drop = new Map(), born = new Set();
+    for (let cc = 0; cc < MN; cc++) {
+      // Пустые ячейки остаются перегородками, а замороженные камни падают вместе с остальными.
+      let bottom = MN - 1;
+      while (bottom >= 0) {
+        if (mholes.has(bottom * MN + cc)) { bottom--; continue; }
+        let top = bottom;
+        while (top >= 0 && !mholes.has(top * MN + cc)) top--;
+        const slots = [];
+        for (let rr = bottom; rr > top; rr--) slots.push(rr);
+        const stones = slots.filter(rr => mb[rr][cc] >= 0).map(rr => ({
+          v: mb[rr][cc], special: ms[rr][cc], ice: !!mice[rr * MN + cc], from: rr
+        }));
+        slots.forEach(rr => { mb[rr][cc] = -1; ms[rr][cc] = 0; mice[rr * MN + cc] = 0; });
+        let write = 0;
+        for (const stone of stones) {
+          const dest = slots[write++];
+          mb[dest][cc] = stone.v; ms[dest][cc] = stone.special; mice[dest * MN + cc] = stone.ice ? 1 : 0;
+          if (dest !== stone.from) drop.set(dest * MN + cc, dest - stone.from);
+        }
+        for (; write < slots.length; write++) {
+          const rr = slots[write];
+          // На уровне «Сапёр» мины не выпадают повторно: все стоят на поле с начала.
+          const hz = !mLevelDef(mlvl).mineCount && mlvl >= 1 && Math.random() < .03 && mHaz() < mHazCap();
+          mb[rr][cc] = hz ? 8 : rnd(); ms[rr][cc] = !hz && Math.random() < .04 ? 5 : 0;
+          // Новые падающие камни всегда появляются без ледяной брони.
+          mice[rr * MN + cc] = 0;
+          drop.set(rr * MN + cc, bottom - rr + 1);
+        }
+        bottom = top - 1;
+      }
+    }
+    plan.make.forEach((s, k) => { if (!drop.has(k)) born.add(k); });
+    fx.drop = drop; fx.born = born; mRender(); await sleep(380);
+    plan = mPlan([]);
+  }
+}
+async function mTap(r, c){
+  if (mbusy || mmoves <= 0) return;
+  const i = r * MN + c;
+  if (mholes.has(i) || mb[r][c] < 0 || mice[i]) { if (msel !== null) { msel = null; mRender(); } return; }
+  if (msel !== null) { const [sr, sc] = rc(msel); if (mholes.has(msel) || mb[sr][sc] < 0) msel = null; }
+  if (msel === null) { msel = i; buzz("light"); mRender(); return; }
+  const j = msel, [r0, c0] = rc(j);
+  if (mice[j] || mice[i] || Math.abs(r0 - r) + Math.abs(c0 - c) !== 1) { msel = i === j ? null : i; buzz("light"); mRender(); return; }
+  mbusy = true; msel = null;
+  const vec = () => new Map([[i, [c0 - c, r0 - r]], [j, [c - c0, r - r0]]]);
+  mSwap(j, i); fx.swp = vec(); mRender(); await sleep(200);
+  const bomb = mb[r][c] === 9 || mb[r0][c0] === 9;
+  if ((!bomb && !mRuns().length) || (bomb && (mb[r][c] === 8 || mb[r0][c0] === 8))) { mSwap(j, i); fx.swp = vec(); mRender(); note("error"); await sleep(200); mbusy = false; return; }
+  mmoves--; mlost = 0; await mCascade([i, j], bomb ? mBombPlan(i, j) : null); mAward();
+  if (mmoves > 0 && !mDone() && !mCanMove()) { mFill(); $("mmsg").textContent = "Ходов не осталось, перемешали поле"; }
+  mRender(); mbusy = false; mSave();
+  if (mlives <= 0) mFail(); else if (mDone()) mWin(); else if (mmoves <= 0) mFail();
+}
+$("multa").onclick = async () => {
+  if (mbusy || mcharge < 100) return;
+  mbusy = true; mcharge = 0;
+  const center = msel !== null && mb[rc(msel)[0]][rc(msel)[1]] >= 0 ? msel : 24;
+  const [cr,cc] = rc(center), clear = new Set();
+  for (let r=Math.max(0,cr-1); r<=Math.min(MN-1,cr+1); r++) for(let c=Math.max(0,cc-1); c<=Math.min(MN-1,cc+1); c++) if(!mholes.has(r*MN+c)) clear.add(r*MN+c);
+  msel=null; await mCascade([], {clear,make:new Map()});
+  mAward(); mRender(); mbusy=false; mSave();
+  if (mlives<=0) mFail(); else if(mDone()) mWin(); else if(mmoves<=0) mFail();
+};
+$("mwave").onclick = async () => {
+  if (mbusy || mwaveCharge < 100 || msel === null) return;
+  const [row] = rc(msel);
+  mbusy = true; mwaveCharge = 0;
+  const clear = new Set();
+  for (let c = 0; c < MN; c++) if (!mholes.has(row * MN + c)) clear.add(row * MN + c);
+  msel = null; await mCascade([], {clear, make:new Map()});
+  mAward(); mRender(); mbusy = false; mSave();
+  if (mlives <= 0) mFail(); else if (mDone()) mWin(); else if (mmoves <= 0) mFail();
+};
+function mMarks(){
+  const G = CONFIG.m3Goals, max = G[G.length - 1].score, bar = $("mbar");
+  bar.querySelectorAll(".mk").forEach(k => k.remove());
+  G.forEach(g => { const k = el("div", "mk", g.icon || "🎁"); k.style.left = g.score / max * 100 + "%"; k.append(el("i", "", String(g.score))); bar.append(k); });
+}
+function mBar(){
+  const G = CONFIG.m3Goals, max = G[G.length - 1].score;
+  $("mfill").style.width = Math.min(100, mscore / max * 100) + "%";
+  [...$("mbar").querySelectorAll(".mk")].forEach((k, i) => k.classList.toggle("on", i < mgot));
+}
+function mPlace(s){   // кладём бонус на случайный обычный камень
+  if ((s === 3 || s === 4) && mBombCount() >= 5) return;
+  const free = []; for (let r = 0; r < MN; r++) for (let c = 0; c < MN; c++) if (ms[r][c] === 0 && mb[r][c] >= 0 && mb[r][c] < MT) free.push(r * MN + c);
+  if (!free.length) return;
+  const k = free[Math.floor(Math.random() * free.length)], [r, c] = rc(k);
+  ms[r][c] = s; if (s === 4) mb[r][c] = 9; (fx.born = fx.born || new Set()).add(k);
+}
+function mAward(){
+  const G = CONFIG.m3Goals; let card = null, got = false;
+  while (mgot < G.length && mscore >= G[mgot].score) {
+    const g = G[mgot++]; got = true;
+    if (g.kind === "moves") mmoves += g.n || 3;
+    else if (g.kind === "rainbow") mPlace(4);
+    else if (g.kind === "bomb") mPlace(3);
+    else if (g.kind === "card") card = g;
+    $("mmsg").textContent = "Подарок: " + g.name + " " + (g.icon || ""); buzz("heavy"); note("success");
+  }
+  if (!got) return;
+  if (mgot === G.length) burst(80, innerWidth / 2, innerHeight * .5, 10);
+  mRender(); if (card) setTimeout(() => openSheet(card.title, card.text, false), 600);
+}
+const mHaz = () => mb.flat().filter(v => v === 8).length;
+const mHazCap = () => {
+  if (mlvl < 1) return 0;
+  const level = mLevelDef(mlvl);
+  // Особый уровень «Сапёр»: десять мин появляются сразу при старте.
+  if (level.mineCount) return level.mineCount;
+  // На обычных уровнях со сбором мин одновременно не больше двух.
+  if (Object.prototype.hasOwnProperty.call(mtarget, 8)) return (mneed[8] || 0) > 0 ? Math.min(2, mtarget[8]) : 0;
+  return Math.min(2, 1 + Math.floor((mlvl - 1) / 3));
+};   // мины: со 2-го уровня, максимум две одновременно, кроме особого уровня
+const mDone = () => Object.keys(mneed).every(t => mneed[t] <= 0);
+function mLevelDef(n){
+  const custom = (CONFIG.m3Levels || [])[n];
+  if (custom) {
+    const goals = {...(custom.goals || {})};
+    if (goals[8] !== undefined) goals[8] = Math.min(2, goals[8]);
+    return {...custom, goals};
+  }
+  // 16 разных карт: после полного круга темы возвращаются, но задания постепенно растут.
+  const patterns = [
+    {goals:{0:18,2:14},moves:20,title:"Розовый берег",holes:[]},
+    {goals:{1:20,3:16},moves:22,title:"Изумрудный лес",holes:[8,9,15,33]},
+    {goals:{2:22,4:18},moves:21,title:"Кристальная пещера",holes:[10,16,24,32,38]},
+    {goals:{0:16,3:18,4:14},moves:24,title:"Три стихии",holes:[]},
+    {goals:{1:20,2:18,8:2},moves:23,title:"Минное поле",holes:[9,17,25,31,39]},
+    {goals:{0:22,4:20},moves:20,title:"Узкий мост",holes:[3,10,17,24,31,38,45]},
+    {goals:{2:24,3:20,8:3},moves:25,title:"Опасная шахта",holes:[8,16,24,32,40]},
+    {goals:{0:18,1:18,2:18,3:18,4:18},moves:27,title:"Радужный шторм",holes:[]},
+    {goals:{0:22,3:18},moves:22,title:"Ледяные ступени",holes:[6,12,18,30,36,42]},
+    {goals:{1:18,2:18,4:18},moves:24,title:"Сапфировый водопад",holes:[2,3,9,15,33,39,45,46]},
+    {goals:{0:20,2:20,8:2},moves:24,title:"Затерянный храм",holes:[11,12,18,20,28,30,36,37]},
+    {goals:{1:22,3:22,4:16},moves:25,title:"Цветочная поляна",holes:[]},
+    {goals:{0:18,2:18,3:18,8:2},moves:26,title:"Лавовая река",holes:[4,10,16,22,28,34,40,46]},
+    {goals:{1:24,4:22},moves:21,title:"Шахматный лабиринт",holes:[7,9,17,19,27,29,37,39]},
+    {goals:{0:20,1:20,2:20,3:20,4:20},moves:28,title:"Большая радуга",holes:[14,22,26,34]},
+    {goals:{2:22,3:20,8:3},moves:25,title:"Сердце вулкана",holes:[8,16,24,32,40]},
+    {goals:{0:20,2:18},moves:26,title:"Сапёр",mineCount:6,holes:[]}
+  ];
+  const base = patterns[n % patterns.length];
+  // Каждые несколько уровней цель заметно, но плавно растёт; число ходов растёт медленнее.
+  const growth = 1 + n * 0.025;
+  const goals = Object.fromEntries(Object.entries(base.goals).map(([type, count]) => [type, type === "8" ? Math.min(2, Math.ceil(count * growth)) : Math.ceil(count * growth)]));
+  return {...base, goals, moves: base.moves + Math.floor(n / 4), holes:[...base.holes]};
+}
+function mHud(){
+  const box = $("mgoal"); box.innerHTML = ""; box.append(el("b", "", "Уровень " + (mlvl + 1) + " · " + (mLevelDef(mlvl).title || "Испытание")));
+  Object.keys(mtarget).forEach(t => {
+    const cell = el("div", "cell t" + t), need = mneed[t] || 0, chip = el("div", "chip" + (need ? "" : " done"));
+    cell.append(el("button", "gm")); chip.append(cell, el("span", "", (mtarget[t] - need) + "/" + mtarget[t])); box.append(chip);
+  });
+}
+function mSave(){
+  if (preview) return;   // в режиме просмотра прогресс не сохраняем
+  try { localStorage.setItem("m3s", JSON.stringify({lvl: mlvl, score: mscore, got: mgot})); } catch(e){}
+}
+function mWin(){
+  mbusy = true; const bonus = mmoves * 8; mscore += bonus; mAward(); mmoves = 0; mSave(); mRender();
+  $("mmsg").textContent = "Уровень " + (mlvl + 1) + " пройден! Бонус за ходы: +" + bonus;
+  note("success"); buzz("heavy"); burst(100, innerWidth / 2, innerHeight * .5, 12);
+  mnext = true; $("mnew").textContent = "Дальше"; $("mnew").hidden = false;
+}
+function mFail(){
+  mbusy = true; $("mmsg").textContent = (mlives <= 0 ? "Жизни закончились." : "Не хватило ходов.") + " Попробуй ещё раз"; note("warning");
+  mnext = false; $("mnew").textContent = "Ещё раз"; $("mnew").hidden = false;
+}
+function mNew(){
+  const L = mLevelDef(mlvl); mcharge = 0; mwaveCharge = 0; mmoves = L.moves; mneed = {...L.goals}; mtarget = {...L.goals}; mholes = new Set(L.holes || []);
+  msel = null; mbusy = false; fx = {}; mlives = 3;
+  // Сначала создаём обычное поле с возможным ходом, и только потом расставляем мины.
+  // Иначе проверка доступного хода могла перезапускать генерацию и мешать появлению всех мин.
+  do { mFill(); } while (!mCanMove());
+  const mineTotal = L.mineCount || mHazCap();
+  if (mineTotal > 0) {
+    const spots = [];
+    for (let i = 0; i < MN * MN; i++) {
+      const [r, c] = rc(i);
+      if (mb[r][c] >= 0 && mb[r][c] < MT && !mice[i]) spots.push(i);
+    }
+    for (let i = spots.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [spots[i], spots[j]] = [spots[j], spots[i]];
+    }
+    for (const i of spots.slice(0, mineTotal)) {
+      const [r, c] = rc(i);
+      mb[r][c] = 8;
+    }
+  }
+  $("mmsg").textContent = L.mineCount ? "САПЁР: на поле " + mHaz() + " из " + L.mineCount + " мин. Не взрывай их!" : (mHazCap() ? "Осторожно, мины! Взорвёшь одну, потеряешь жизнь" : "Собери нужные камни за " + mmoves + " ходов");
+  $("mnew").hidden = true; mRender();
+}
+$("mnew").onclick = () => { if (mnext) mlvl++; mnext = false; mSave(); mNew(); };
+$("mskip").onclick = () => { mlvl++; mnext = false; mSave(); mNew(); $("mmsg").textContent = "Уровень пропущен. Вперёд к следующему испытанию!"; note("success"); buzz("heavy"); };
+let rtaps = [];   // 7 быстрых нажатий на название «Камушки» = сброс прогресса (для тебя)
+$("gname").onclick = () => {
+  if (curGame === "w") {
+    const t = Date.now(); wtaps = wtaps.filter(x => t - x < 4000); wtaps.push(t);
+    if (wtaps.length >= 5) { wtaps = []; const f = v => v === true ? "да" : v === false ? "нет" : "нет ответа";
+      $("wmsg").textContent = wdiag ? "Последняя проверка «" + wdiag.w + "»: Спеллер " + f(wdiag.sp) + ", Викисловарь " + f(wdiag.wk) : "Проверок по интернету ещё не было"; }
+    return;
+  }
+  if (curGame !== "m") return;
+  const n = Date.now(); rtaps = rtaps.filter(x => n - x < 4000); rtaps.push(n);
+  if (rtaps.length >= 7) {
+    rtaps = []; mlvl = 0; mscore = 0; mgot = 0; try { localStorage.removeItem("m3s"); } catch(e){}
+    mNew(); $("mmsg").textContent = "Прогресс сброшен"; note("success");
+  }
+};
+try { const st = JSON.parse(localStorage.getItem("m3s") || "null"); if (st) { mlvl = st.lvl | 0; mscore = st.score | 0; mgot = st.got | 0; mcharge = 0; mwaveCharge = 0; } } catch(e){}
+mMarks(); mNew();
+
+// Days until we meet
+function plural(n){ const a = n % 100, b = n % 10; return (a > 10 && a < 15) || b === 0 || b > 4 ? "дней" : b === 1 ? "день" : "дня"; }
+function updNY(){
+  const left = Math.ceil((newYear - new Date()) / 86400000);
+  $("mdays").textContent = left > 0 ? left : "🎄";
+  $("mlabel").textContent = left > 0 ? plural(left) + " до Нового года" : "Новый год наступил";
+  $("mtext").textContent = left > 0 ? CONFIG.meet.text : "";
+}
+updNY(); setInterval(updNY, 60000);
+
+// Gallery
+CONFIG.photos.forEach(ph => {
+  const c = el("div", "pol"), box = el("div", "ph"), img = new Image();
+  img.src = ph.src; img.alt = ph.cap;
+  img.onerror = () => { img.remove(); box.textContent = "Тут будет фото"; };
+  box.append(img); c.append(box, el("p", "", ph.cap)); $("gal").append(c);
+});
+
+// Tree
+const svg = $("tree"), NS = "http://www.w3.org/2000/svg", cols = ["#e8a0b4","#ff9f68","#f3e3c3","#b3243e","#7fc4d9"];
+let balls = [];
+try { balls = JSON.parse(localStorage.getItem("balls2") || "[]"); } catch(e){}
+function dot(x, y, r, fill, cls){
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", r); c.setAttribute("fill", fill);
+  if (cls) c.setAttribute("class", cls);
+  svg.appendChild(c);
+}
+[[150,95],[125,128],[175,132],[100,172],[150,168],[200,174],[80,216],[125,212],[175,214],[222,220],[62,262],[110,258],[160,256],[210,262],[248,266]]
+  .forEach(([x, y]) => dot(x, y, 3, "#ffe9a8", "lt"));
+function addBall(x, y, c){ dot(x, y, 9, cols[c]); dot(x, y, 9, "url(#shine)"); dot(x - 3, y - 3, 2.2, "rgba(255,255,255,.8)"); dot(x, y - 9, 2, "#ffd36b"); }
+function updWish(){
+  const n = 5 - balls.length;
+  $("wish").textContent = n > 0 ? "Загадай желание и повесь ещё " + n : CONFIG.wish;
+}
+balls.forEach(b => addBall(b[0], b[1], b[2]));
+updWish();
+svg.addEventListener("click", e => {
+  const r = svg.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * 300, y = (e.clientY - r.top) / r.height * 360;
+  if (y < 70 || y > 282 || Math.abs(x - 150) > (y - 40) * .5 - 8) return;
+  const c = Math.floor(Math.random() * cols.length);
+  addBall(x, y, c); buzz("medium");
+  balls.push([x, y, c]);
+  try { localStorage.setItem("balls2", JSON.stringify(balls)); } catch(e){}
+  updWish();
+  if (balls.length === 5) burst(80, e.clientX, e.clientY, 8);
+});
+
+// Canvas: snow, shooting stars, confetti
+const cv = $("fx"), cx = cv.getContext("2d");
+let W, H, flakes = [], bits = [], stars = [];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function size(){ W = cv.width = innerWidth; H = cv.height = innerHeight; }
+addEventListener("resize", size); size();
+for (let i = 0; i < (reduce ? 0 : 70); i++) flakes.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2.2+.6,s:Math.random()*.8+.3,d:Math.random()*7});
+function burst(n, x, y, p){
+  const cols = ["#ff9f68","#e8a0b4","#f3e3c3","#b3243e","#ffffff"];
+  for (let i = 0; i < n; i++) bits.push({x,y,vx:(Math.random()-.5)*p*1.6,vy:-Math.random()*p-4,w:Math.random()*7+4,c:cols[i%5],a:Math.random()*6});
+}
+(function loop(){
+  cx.clearRect(0,0,W,H);
+  cx.fillStyle = "rgba(243,227,195,.8)";
+  flakes.forEach(f => { f.y += f.s; f.d += .01; f.x += Math.sin(f.d)*.4; if (f.y > H) { f.y = -5; f.x = Math.random()*W; } cx.beginPath(); cx.arc(f.x,f.y,f.r,0,7); cx.fill(); });
+  if (!reduce && Math.random() < .004) stars.push({x:Math.random()*W,y:Math.random()*H*.4,vx:6+Math.random()*4,vy:3+Math.random()*2,l:1});
+  stars = stars.filter(s => s.l > 0);
+  stars.forEach(s => { s.x += s.vx; s.y += s.vy; s.l -= .02; cx.strokeStyle = "rgba(255,240,210," + s.l + ")"; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(s.x,s.y); cx.lineTo(s.x - s.vx*6, s.y - s.vy*6); cx.stroke(); });
+  bits = bits.filter(b => b.y < H + 20);
+  bits.forEach(b => { b.vy += .35; b.x += b.vx; b.y += b.vy; b.a += .2; cx.fillStyle = b.c; cx.save(); cx.translate(b.x,b.y); cx.rotate(b.a); cx.fillRect(-b.w/2,-b.w/4,b.w,b.w/2); cx.restore(); });
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
